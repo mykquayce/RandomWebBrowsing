@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "RandomWebBrowsing.ConsoleApp": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "NETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

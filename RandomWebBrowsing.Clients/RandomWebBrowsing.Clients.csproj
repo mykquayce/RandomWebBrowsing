@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>preview</LangVersion>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Helpers.HttpClient" Version="1.0.8-preview" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RandomWebBrowsing.Models\RandomWebBrowsing.Models.csproj" />
+  </ItemGroup>
+
+</Project>
