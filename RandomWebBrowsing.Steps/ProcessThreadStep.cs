@@ -7,18 +7,21 @@ using WorkflowCore.Models;
 
 namespace RandomWebBrowsing.Steps
 {
-	public class GetThreadCommentsStep : IStepBody
+	public class ProcessThreadStep : IStepBody
 	{
 		private readonly Services.IRedditService _redditService;
+		private readonly Services.IMessageService _messageService;
 
-		public GetThreadCommentsStep(
-			Services.IRedditService redditService)
+		public ProcessThreadStep(
+			Services.IRedditService redditService,
+			Services.IMessageService messageService)
 		{
 			_redditService = Guard.Argument(() => redditService).NotNull().Value;
+			_messageService = Guard.Argument(() => messageService).NotNull().Value;
 		}
 
 		public string? ThreadUriString { get; set; }
-		public ICollection<string> Comments { get; } = new List<string>();
+		public ICollection<string> Links { get; } = new List<string>();
 
 		public async Task<ExecutionResult> RunAsync(IStepExecutionContext context)
 		{
@@ -28,7 +31,10 @@ namespace RandomWebBrowsing.Steps
 
 			await foreach (var comment in _redditService.GetThreadCommentsAsync(uri))
 			{
-				Comments.Add(comment);
+				foreach (var link in _messageService.GetLinksFromComment(comment))
+				{
+					Links.Add(link.OriginalString);
+				}
 			}
 
 			return ExecutionResult.Next();

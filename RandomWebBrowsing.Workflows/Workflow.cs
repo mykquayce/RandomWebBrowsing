@@ -46,19 +46,8 @@ namespace RandomWebBrowsing.Workflows
 					)
 				.If(data => (data.MessageTypes & Models.MessageTypes.Thread) != 0)
 					.Do(then => then
-						.StartWith<Steps.GetThreadCommentsStep>()
+						.StartWith<Steps.ProcessThreadStep>()
 							.Input(step => step.ThreadUriString, data => data.Message)
-							.Output(data => data.Messages, step => step.Comments)
-						.ForEach(data => data.Messages)
-							.Do(each => each
-								.StartWith<Steps.PublishMessageStep>()
-									.Input(step => step.Message, (_, context) => context.Item as string)
-							)
-					)
-				.If(data => (data.MessageTypes & Models.MessageTypes.Comment) != 0)
-					.Do(then => then
-						.StartWith<Steps.GetLinksFromCommentStep>()
-							.Input(step => step.Comment, data => data.Message)
 							.Output(data => data.Messages, step => step.Links)
 						.ForEach(data => data.Messages)
 							.Do(each => each

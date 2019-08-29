@@ -90,7 +90,7 @@ namespace RandomWebBrowsing.ConsoleApp
 						.AddTransient<Steps.EvaluateMessageStep>()
 						.AddTransient<Steps.GetLinksFromCommentStep>()
 						.AddTransient<Steps.GetSubredditThreadsStep>()
-						.AddTransient<Steps.GetThreadCommentsStep>()
+						.AddTransient<Steps.ProcessThreadStep>()
 						.AddTransient<Steps.GetUriRedirectStep>()
 						.AddTransient<Steps.PublishMessageStep>()
 						.AddTransient<Steps.VisitLinkStep>();
