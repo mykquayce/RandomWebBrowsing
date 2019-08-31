@@ -1,32 +1,31 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
-namespace RandomWebBrowsing.ConsoleApp
+namespace RandomWebBrowsing.WorkerService
 {
 	public static class Program
 	{
-		public static Task Main()
+		public static Task Main(string[] args)
 		{
-			var hostBuilder = new HostBuilder();
+			var hostBuilder = Host.CreateDefaultBuilder(args);
 
 			hostBuilder
-				.ConfigureAppConfiguration((hostBuilderContext, configurationBuilder) =>
+				.ConfigureAppConfiguration((hostContext, configurationBuilder) =>
 				{
-					if (string.IsNullOrWhiteSpace(hostBuilderContext.HostingEnvironment.ApplicationName))
+					if (string.IsNullOrWhiteSpace(hostContext.HostingEnvironment.ApplicationName))
 					{
-						hostBuilderContext.HostingEnvironment.ApplicationName = System.Reflection.Assembly.GetAssembly(typeof(Program))!.GetName().Name;
+						hostContext.HostingEnvironment.ApplicationName = System.Reflection.Assembly.GetAssembly(typeof(Program))!.GetName().Name;
 					}
 
 					var environmentName = Environment.GetEnvironmentVariable("NETCORE_ENVIRONMENT") ?? Environments.Production;
 
-					hostBuilderContext.HostingEnvironment.EnvironmentName = environmentName;
+					hostContext.HostingEnvironment.EnvironmentName = environmentName;
 
 					configurationBuilder
 						.SetBasePath(Environment.CurrentDirectory)
@@ -35,24 +34,14 @@ namespace RandomWebBrowsing.ConsoleApp
 				});
 
 			hostBuilder
-				.ConfigureLogging((hostBuilderContext, loggingBuilder) =>
-				{
-					loggingBuilder
-						.AddConfiguration(hostBuilderContext.Configuration.GetSection("Logging"))
-						.AddConsole()
-						.AddDebug()
-						.AddEventSourceLogger();
-				});
-
-			hostBuilder
-				.ConfigureServices((hostBuilderContext, services) =>
+				.ConfigureServices((hostContext, services) =>
 				{
 					services
 						.AddHttpClient(
 							nameof(Clients.Concrete.HttpClient),
 							(provider, client) =>
 							{
-								var uriSettings = hostBuilderContext.Configuration
+								var uriSettings = hostContext.Configuration
 									.GetSection(nameof(Config.Uris))
 									.Get<Config.Uris>();
 
@@ -70,14 +59,14 @@ namespace RandomWebBrowsing.ConsoleApp
 						.AddTransient<Clients.IHttpClient, Clients.Concrete.HttpClient>();
 
 					services
-						.Configure<List<string>>(hostBuilderContext.Configuration.GetSection("Blacklist"))
-						.Configure<Helpers.RabbitMQ.Models.Settings>(hostBuilderContext.Configuration.GetSection("RabbitMQSettings"))
-						.Configure<Helpers.Jaeger.Models.Settings>(hostBuilderContext.Configuration.GetSection("JaegerSettings"))
-						.Configure<Config.Settings>(hostBuilderContext.Configuration.GetSection(nameof(Config.Settings)))
-						.Configure<Config.Uris>(hostBuilderContext.Configuration.GetSection(nameof(Config.Uris)));
+						.Configure<List<string>>(hostContext.Configuration.GetSection("Blacklist"))
+						.Configure<Helpers.RabbitMQ.Models.Settings>(hostContext.Configuration.GetSection("RabbitMQSettings"))
+						.Configure<Helpers.Jaeger.Models.Settings>(hostContext.Configuration.GetSection("JaegerSettings"))
+						.Configure<Config.Settings>(hostContext.Configuration.GetSection(nameof(Config.Settings)))
+						.Configure<Config.Uris>(hostContext.Configuration.GetSection(nameof(Config.Uris)));
 
 					services
-						.AddJaegerTracing(hostBuilderContext.Configuration.GetSection("JaegerSettings"));
+						.AddJaegerTracing(hostContext.Configuration.GetSection("JaegerSettings"));
 
 					services
 						.AddTransient<Services.IMessageService, Services.Concrete.MessageService>()
@@ -89,18 +78,17 @@ namespace RandomWebBrowsing.ConsoleApp
 						.AddTransient<Steps.ConsumeMessageStep>()
 						.AddTransient<Steps.EvaluateMessageStep>()
 						.AddTransient<Steps.GetSubredditThreadsStep>()
-						.AddTransient<Steps.ProcessThreadStep>()
 						.AddTransient<Steps.GetUriRedirectStep>()
+						.AddTransient<Steps.ProcessThreadStep>()
 						.AddTransient<Steps.PublishMessageStep>()
 						.AddTransient<Steps.VisitLinkStep>();
 
 					services
-						.AddHostedService<HostedService>()
+						.AddHostedService<Worker>()
 						.AddWorkflow();
 				});
 
-			return hostBuilder
-				.RunConsoleAsync();
+			return hostBuilder.RunConsoleAsync();
 		}
 	}
 }

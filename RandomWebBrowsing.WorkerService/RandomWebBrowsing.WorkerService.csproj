@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <LangVersion>preview</LangVersion>
+    <Nullable>enable</Nullable>
+    <UserSecretsId>dotnet-RandomWebBrowsing.WorkerService-E2B62CA8-D049-42F6-83B7-FBE5B933F5FD</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dawn.Guard" Version="1.8.0" />
+    <PackageReference Include="Helpers.Jaeger" Version="1.0.11-preview" />
+    <PackageReference Include="Helpers.RabbitMQ" Version="1.0.7-preview" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.0.0-preview8.19405.4" />
+    <PackageReference Include="WorkflowCore" Version="2.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RandomWebBrowsing.Config\RandomWebBrowsing.Config.csproj" />
+    <ProjectReference Include="..\RandomWebBrowsing.Services\RandomWebBrowsing.Services.csproj" />
+    <ProjectReference Include="..\RandomWebBrowsing.Steps\RandomWebBrowsing.Steps.csproj" />
+    <ProjectReference Include="..\RandomWebBrowsing.Workflows\RandomWebBrowsing.Workflows.csproj" />
+  </ItemGroup>
+</Project>
