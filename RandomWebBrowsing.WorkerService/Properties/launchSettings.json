@@ -1,0 +1,10 @@
+﻿{
+  "profiles": {
+    "RandomWebBrowsing.WorkerService": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
