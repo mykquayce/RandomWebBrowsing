@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29021.104
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RandomWebBrowsing.ConsoleApp", "RandomWebBrowsing.ConsoleApp\RandomWebBrowsing.ConsoleApp.csproj", "{15DDE79E-4DC3-40BD-BF0F-5E1088684417}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RandomWebBrowsing.Workflows", "RandomWebBrowsing.Workflows\RandomWebBrowsing.Workflows.csproj", "{AB31F103-612C-4E38-ADA6-8044B621DCF8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RandomWebBrowsing.Models", "RandomWebBrowsing.Models\RandomWebBrowsing.Models.csproj", "{3B8A5D9C-3864-4251-884A-39A01873861C}"
@@ -21,7 +19,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RandomWebBrowsing.Services.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RandomWebBrowsing.Steps.Tests", "RandomWebBrowsing.Steps.Tests\RandomWebBrowsing.Steps.Tests.csproj", "{49630B24-AC0C-414F-A5A5-AFA55C72C636}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RandomWebBrowsing.WorkerService", "RandomWebBrowsing.WorkerService\RandomWebBrowsing.WorkerService.csproj", "{C1B78084-6358-46D3-B101-B2B87372946F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RandomWebBrowsing.WorkerService", "RandomWebBrowsing.WorkerService\RandomWebBrowsing.WorkerService.csproj", "{C1B78084-6358-46D3-B101-B2B87372946F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,10 +27,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{15DDE79E-4DC3-40BD-BF0F-5E1088684417}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{15DDE79E-4DC3-40BD-BF0F-5E1088684417}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{15DDE79E-4DC3-40BD-BF0F-5E1088684417}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{15DDE79E-4DC3-40BD-BF0F-5E1088684417}.Release|Any CPU.Build.0 = Release|Any CPU
 		{AB31F103-612C-4E38-ADA6-8044B621DCF8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{AB31F103-612C-4E38-ADA6-8044B621DCF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AB31F103-612C-4E38-ADA6-8044B621DCF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
