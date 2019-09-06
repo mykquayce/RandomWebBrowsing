@@ -1,4 +1,6 @@
 ﻿using Dawn;
+using Helpers.Tracing;
+using OpenTracing;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,11 +12,14 @@ namespace RandomWebBrowsing.Steps
 	public class GetUriRedirectStep : IStepBody
 	{
 		private readonly Clients.IHttpClient _httpClient;
+		private readonly ITracer? _tracer;
 
 		public GetUriRedirectStep(
-			Clients.IHttpClient httpClient)
+			Clients.IHttpClient httpClient,
+			ITracer? tracer = default)
 		{
 			_httpClient = Guard.Argument(() => httpClient).NotNull().Value;
+			_tracer = tracer;
 		}
 
 		public Uri? Uri { get; set; }
@@ -22,6 +27,11 @@ namespace RandomWebBrowsing.Steps
 
 		public async Task<ExecutionResult> RunAsync(IStepExecutionContext context)
 		{
+			using var scope = _tracer?
+				.BuildDefaultSpan()
+				.WithTag(nameof(Uri), Uri?.OriginalString)
+				.StartActive(finishSpanOnDispose: true);
+
 			Guard.Argument(() => Uri)
 				.NotNull()
 				.Require(uri => uri!.IsAbsoluteUri, _ => nameof(Uri) + " must be absolute");
@@ -40,7 +50,9 @@ namespace RandomWebBrowsing.Steps
 
 			Guard.Argument(() => location).NotNull().NotEmpty().NotWhiteSpace().StartsWith("http");
 
-			RedirectUri = new Uri(locations.Single(), UriKind.Absolute);
+			RedirectUri = new Uri(location, UriKind.Absolute);
+
+			scope?.Span.Log(nameof(RedirectUri), location);
 
 			return ExecutionResult.Next();
 		}

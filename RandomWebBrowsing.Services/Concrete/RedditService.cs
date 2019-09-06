@@ -72,6 +72,11 @@ namespace RandomWebBrowsing.Services.Concrete
 
 			foreach (var entry in feed.entry)
 			{
+				if (string.IsNullOrWhiteSpace(entry?.content?.Value))
+				{
+					continue;
+				}
+
 				yield return entry.content.Value;
 			}
 		}

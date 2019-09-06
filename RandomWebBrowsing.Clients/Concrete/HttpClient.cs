@@ -11,12 +11,8 @@ namespace RandomWebBrowsing.Clients.Concrete
 {
 	public class HttpClient : Helpers.HttpClient.HttpClientBase, IHttpClient
 	{
-		private static readonly XmlSerializer _feedSerializer;
-
-		static HttpClient()
-		{
-			_feedSerializer = new XmlSerializer(typeof(Models.Generated.feedType));
-		}
+		private const int _bufferSize = 1_024, _maxDownloadSize = 10_485_760;
+		private static readonly XmlSerializer _feedSerializer = new XmlSerializer(typeof(Models.Generated.feedType));
 
 		public HttpClient(
 			IHttpClientFactory httpClientFactory,
@@ -46,7 +42,23 @@ namespace RandomWebBrowsing.Clients.Concrete
 			}
 		}
 
-		public Task VisitLinkAsync(Uri uri)
-			=> SendAsync(HttpMethod.Get, uri);
+		public async Task VisitLinkAsync(Uri uri)
+		{
+			var (_, stream, _) = await SendAsync(HttpMethod.Get, uri);
+
+			int offset = 0, count;
+			var buffer = new byte[_bufferSize];
+
+			using (stream)
+			{
+				do
+				{
+					count = await stream.ReadAsync(buffer, offset, _bufferSize);
+
+					offset += count;
+				}
+				while (count > 0 && offset > _maxDownloadSize);
+			}
+		}
 	}
 }

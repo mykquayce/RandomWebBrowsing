@@ -44,7 +44,7 @@ namespace RandomWebBrowsing.WorkerService
 				var persistenceData = new Models.PersistenceData();
 				await _workflowHost.StartWorkflow(workflowId: nameof(Workflows.Workflow), data: persistenceData);
 
-				await Task.Delay(10_000, stoppingToken);
+				await Task.Delay(1_000, stoppingToken);
 			}
 
 			_workflowHost.Stop();

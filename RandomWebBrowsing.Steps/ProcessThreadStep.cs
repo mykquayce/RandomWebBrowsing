@@ -1,4 +1,6 @@
 ﻿using Dawn;
+using Helpers.Tracing;
+using OpenTracing;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -11,13 +13,16 @@ namespace RandomWebBrowsing.Steps
 	{
 		private readonly Services.IRedditService _redditService;
 		private readonly Services.IMessageService _messageService;
+		private readonly ITracer? _tracer;
 
 		public ProcessThreadStep(
 			Services.IRedditService redditService,
-			Services.IMessageService messageService)
+			Services.IMessageService messageService,
+			ITracer? tracer = default)
 		{
 			_redditService = Guard.Argument(() => redditService).NotNull().Value;
 			_messageService = Guard.Argument(() => messageService).NotNull().Value;
+			_tracer = tracer;
 		}
 
 		public string? ThreadUriString { get; set; }
@@ -25,6 +30,11 @@ namespace RandomWebBrowsing.Steps
 
 		public async Task<ExecutionResult> RunAsync(IStepExecutionContext context)
 		{
+			using var scope = _tracer?
+				.BuildDefaultSpan()
+				.WithTag(nameof(ThreadUriString), ThreadUriString)
+				.StartActive(finishSpanOnDispose: true);
+
 			Guard.Argument(() => ThreadUriString).NotNull().NotEmpty().NotWhiteSpace();
 
 			var uri = new Uri(ThreadUriString!, UriKind.Absolute);
@@ -36,6 +46,8 @@ namespace RandomWebBrowsing.Steps
 					Links.Add(link.OriginalString);
 				}
 			}
+
+			scope?.Span.Log("Links.Count", Links.Count);
 
 			return ExecutionResult.Next();
 		}

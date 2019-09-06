@@ -37,7 +37,7 @@ namespace RandomWebBrowsing.Workflows
 					.Do(then => then
 						.StartWith<Steps.GetSubredditThreadsStep>()
 							.Input(step => step.SubredditUriString, data => data.Message)
-							.Output(data => data.Messages, step => step.TheadsUris)
+							.Output(data => data.Messages, step => step.ThreadsUris)
 						.ForEach(data => data.Messages)
 							.Do(each => each
 								.StartWith<Steps.PublishMessageStep>()
