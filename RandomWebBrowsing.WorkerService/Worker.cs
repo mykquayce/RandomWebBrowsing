@@ -33,8 +33,6 @@ namespace RandomWebBrowsing.WorkerService
 #if DEBUG
 			System.Diagnostics.Debugger.Break();
 #endif
-
-			throw new NotImplementedException();
 		}
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
