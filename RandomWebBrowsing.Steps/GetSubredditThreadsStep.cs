@@ -1,7 +1,6 @@
 ﻿using Dawn;
 using Helpers.Common;
 using Helpers.Tracing;
-using OpenTracing;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -13,14 +12,17 @@ namespace RandomWebBrowsing.Steps
 	public class GetSubredditThreadsStep : IStepBody
 	{
 		private readonly Services.IRedditService _redditService;
-		private readonly ITracer? _tracer;
+		private readonly OpenTracing.ITracer? _tracer;
+		private readonly OpenTracing.IScope? _parentScope;
 
 		public GetSubredditThreadsStep(
 			Services.IRedditService redditService,
-			ITracer? tracer = default)
+			OpenTracing.ITracer? tracer = default,
+			OpenTracing.IScope? parentScope = default)
 		{
 			_redditService = Guard.Argument(() => redditService).NotNull().Value;
 			_tracer = tracer;
+			_parentScope = parentScope;
 		}
 
 		public string? SubredditUriString { get; set; }
@@ -30,7 +32,7 @@ namespace RandomWebBrowsing.Steps
 		{
 			using var scope = _tracer?
 				.BuildDefaultSpan()
-				.WithTag(nameof(SubredditUriString), SubredditUriString)
+				.AsChildOf(_parentScope?.Span)
 				.StartActive(finishSpanOnDispose: true);
 
 			Guard.Argument(() => SubredditUriString)
@@ -46,7 +48,9 @@ namespace RandomWebBrowsing.Steps
 				ThreadsUris.Add(uri.StripQuery().OriginalString);
 			}
 
-			scope?.Span.Log("ThreadsUris.Count", ThreadsUris.Count);
+			scope?.Span.Log(
+				nameof(SubredditUriString), SubredditUriString,
+				"Count", ThreadsUris.Count);
 
 			return ExecutionResult.Next();
 		}

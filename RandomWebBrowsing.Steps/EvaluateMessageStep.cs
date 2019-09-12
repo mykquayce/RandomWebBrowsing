@@ -1,7 +1,5 @@
 ﻿using Dawn;
 using Helpers.Tracing;
-using OpenTracing;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using WorkflowCore.Interface;
 using WorkflowCore.Models;
@@ -11,14 +9,17 @@ namespace RandomWebBrowsing.Steps
 	public class EvaluateMessageStep : IStepBody
 	{
 		private readonly Services.IMessageService _evaluateMessageService;
-		private readonly ITracer? _tracer;
+		private readonly OpenTracing.ITracer? _tracer;
+		private readonly OpenTracing.IScope? _parentScope;
 
 		public EvaluateMessageStep(
 			Services.IMessageService evaluateMessageService,
-			ITracer? tracer = default)
+			OpenTracing.ITracer? tracer = default,
+			OpenTracing.IScope? parentScope = default)
 		{
 			_evaluateMessageService = evaluateMessageService;
 			_tracer = tracer;
+			_parentScope = parentScope;
 		}
 
 		public string? Message { get; set; }
@@ -28,7 +29,7 @@ namespace RandomWebBrowsing.Steps
 		{
 			using var scope = _tracer?
 				.BuildDefaultSpan()
-				.WithTag(nameof(Message), Message)
+				.AsChildOf(_parentScope?.Span)
 				.StartActive(finishSpanOnDispose: true);
 
 			Guard.Argument(() => Message).NotNull().NotEmpty().NotWhiteSpace();
@@ -39,7 +40,9 @@ namespace RandomWebBrowsing.Steps
 				.NotNull()
 				.NotEqual(Models.MessageTypes.None);
 
-			scope?.Span.Log(nameof(MessageTypes), MessageTypes);
+			scope?.Span.Log(
+				nameof(Message), Message,
+				nameof(MessageTypes), MessageTypes);
 
 			return Task.FromResult(ExecutionResult.Next());
 		}

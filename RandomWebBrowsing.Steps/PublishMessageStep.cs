@@ -1,6 +1,5 @@
 ﻿using Dawn;
 using Helpers.Tracing;
-using OpenTracing;
 using System.Text;
 using System.Threading.Tasks;
 using WorkflowCore.Interface;
@@ -11,14 +10,17 @@ namespace RandomWebBrowsing.Steps
 	public class PublishMessageStep : IStepBody
 	{
 		private readonly Services.IMessageQueueService _messageQueueService;
-		private readonly ITracer? _tracer;
+		private readonly OpenTracing.ITracer? _tracer;
+		private readonly OpenTracing.IScope? _parentScope;
 
 		public PublishMessageStep(
 			Services.IMessageQueueService messageQueueService,
-			ITracer? tracer = default)
+			OpenTracing.ITracer? tracer = default,
+			OpenTracing.IScope? parentScope = default)
 		{
 			_messageQueueService = Guard.Argument(() => messageQueueService).NotNull().Value;
 			_tracer = tracer;
+			_parentScope = parentScope;
 		}
 
 		public string? Message { get; set; }
@@ -27,10 +29,12 @@ namespace RandomWebBrowsing.Steps
 		{
 			using var scope = _tracer?
 				.BuildDefaultSpan()
-				.WithTag(nameof(Message), Message)
+				.AsChildOf(_parentScope?.Span)
 				.StartActive(finishSpanOnDispose: true);
 
 			Guard.Argument(() => Message).NotNull().NotEmpty().NotWhiteSpace();
+
+			scope?.Span.Log(nameof(Message), Message);
 
 			var bytes = Encoding.UTF8.GetBytes(Message);
 

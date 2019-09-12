@@ -81,7 +81,12 @@ namespace RandomWebBrowsing.WorkerService
 						.AddTransient<Steps.GetUriRedirectStep>()
 						.AddTransient<Steps.ProcessThreadStep>()
 						.AddTransient<Steps.PublishMessageStep>()
+						.AddTransient<Steps.StartParentTraceStep>()
+						.AddTransient<Steps.StopParentTraceStep>()
 						.AddTransient<Steps.VisitLinkStep>();
+
+					services
+						.AddTransient<OpenTracing.IScope>(_ => Models.Ioc.Scope!);
 
 					services
 						.AddHostedService<Worker>()

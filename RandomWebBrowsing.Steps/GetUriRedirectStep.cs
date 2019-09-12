@@ -1,6 +1,5 @@
 ﻿using Dawn;
 using Helpers.Tracing;
-using OpenTracing;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,33 +11,34 @@ namespace RandomWebBrowsing.Steps
 	public class GetUriRedirectStep : IStepBody
 	{
 		private readonly Clients.IHttpClient _httpClient;
-		private readonly ITracer? _tracer;
+		private readonly OpenTracing.ITracer? _tracer;
+		private readonly OpenTracing.IScope? _parentScope;
 
 		public GetUriRedirectStep(
 			Clients.IHttpClient httpClient,
-			ITracer? tracer = default)
+			OpenTracing.ITracer? tracer = default,
+			OpenTracing.IScope? parentScope = default)
 		{
 			_httpClient = Guard.Argument(() => httpClient).NotNull().Value;
 			_tracer = tracer;
+			_parentScope = parentScope;
 		}
 
-		public Uri? Uri { get; set; }
-		public Uri? RedirectUri { get; set; }
+		public string? UriString { get; set; }
+		public string? RedirectUriString { get; set; }
 
 		public async Task<ExecutionResult> RunAsync(IStepExecutionContext context)
 		{
 			using var scope = _tracer?
 				.BuildDefaultSpan()
-				.WithTag(nameof(Uri), Uri?.OriginalString)
+				.AsChildOf(_parentScope?.Span)
 				.StartActive(finishSpanOnDispose: true);
 
-			Guard.Argument(() => Uri)
-				.NotNull()
-				.Require(uri => uri!.IsAbsoluteUri, _ => nameof(Uri) + " must be absolute");
+			Guard.Argument(() => UriString).NotNull().NotEmpty().NotWhiteSpace().StartsWith("http");
 
-			Guard.Argument(() => Uri!.OriginalString).NotNull().NotEmpty().NotWhiteSpace();
+			var uri = new Uri(UriString!, UriKind.Absolute);
 
-			var headers = await _httpClient.GetHeadersAsync(Uri!);
+			var headers = await _httpClient.GetHeadersAsync(uri);
 
 			Guard.Argument(() => headers).NotNull().NotEmpty().Require(d => d.ContainsKey("location"));
 
@@ -50,9 +50,11 @@ namespace RandomWebBrowsing.Steps
 
 			Guard.Argument(() => location).NotNull().NotEmpty().NotWhiteSpace().StartsWith("http");
 
-			RedirectUri = new Uri(location, UriKind.Absolute);
+			RedirectUriString = location;
 
-			scope?.Span.Log(nameof(RedirectUri), location);
+			scope?.Span.Log(
+				nameof(UriString), UriString,
+				nameof(RedirectUriString), RedirectUriString);
 
 			return ExecutionResult.Next();
 		}

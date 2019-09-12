@@ -17,8 +17,9 @@ namespace RandomWebBrowsing.Clients.Concrete
 		public HttpClient(
 			IHttpClientFactory httpClientFactory,
 			ILogger? logger = default,
-			ITracer? tracer = default)
-			: base(httpClientFactory, logger, tracer)
+			ITracer? tracer = default,
+			IScope? scope = default)
+			: base(httpClientFactory, logger, tracer, scope)
 		{ }
 
 		public async Task<IDictionary<string, IEnumerable<string>>> GetHeadersAsync(

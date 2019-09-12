@@ -1,6 +1,4 @@
-﻿using System;
-using WorkflowCore.Interface;
-using WorkflowCore.Models;
+﻿using WorkflowCore.Interface;
 
 namespace RandomWebBrowsing.Workflows
 {
@@ -13,13 +11,15 @@ namespace RandomWebBrowsing.Workflows
 		public void Build(IWorkflowBuilder<Models.PersistenceData> builder)
 		{
 			builder
-				.StartWith<Steps.ConsumeMessageStep>()
+				.StartWith<Steps.StartParentTraceStep>()
+				.Then<Steps.ConsumeMessageStep>()
 					.Output(data => data.Message, step => step.Message)
 					.Output(data => data.DeliveryTag, step => step.DeliveryTag)
 				.If(data => data.Message == default)
 					.Do(then => then
 						.StartWith<Steps.PublishMessageStep>()
 							.Input(step => step.Message, _ => "https://old.reddit.com/r/random/.rss")
+							.Then<Steps.StopParentTraceStep>()
 						.EndWorkflow()
 					)
 				.Then<Steps.EvaluateMessageStep>()
@@ -28,8 +28,8 @@ namespace RandomWebBrowsing.Workflows
 				.If(data => (data.MessageTypes & Models.MessageTypes.RandomSubreddit) != 0)
 					.Do(then => then
 						.StartWith<Steps.GetUriRedirectStep>()
-							.Input(step => step.Uri, data => new Uri(data.Message!, UriKind.Absolute))
-							.Output(data => data.Message, step => step.RedirectUri!.OriginalString)
+							.Input(step => step.UriString, data => data.Message)
+							.Output(data => data.Message, step => step.RedirectUriString)
 						.Then<Steps.PublishMessageStep>()
 							.Input(step => step.Message, data => data.Message)
 					)
@@ -62,6 +62,7 @@ namespace RandomWebBrowsing.Workflows
 					)
 				.Then<Steps.AcknowledgeMessageStep>()
 					.Input(step => step.DeliveryTag, data => data.DeliveryTag)
+				.Then<Steps.StopParentTraceStep>()
 				.EndWorkflow();
 		}
 	}

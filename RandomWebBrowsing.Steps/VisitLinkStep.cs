@@ -1,6 +1,5 @@
 ﻿using Dawn;
 using Helpers.Tracing;
-using OpenTracing;
 using System;
 using System.Threading.Tasks;
 using WorkflowCore.Interface;
@@ -11,14 +10,17 @@ namespace RandomWebBrowsing.Steps
 	public class VisitLinkStep : IStepBody
 	{
 		private readonly Clients.IHttpClient _httpClient;
-		private readonly ITracer? _tracer;
+		private readonly OpenTracing.ITracer? _tracer;
+		private readonly OpenTracing.IScope? _parentScope;
 
 		public VisitLinkStep(
 			Clients.IHttpClient httpClient,
-			ITracer? tracer = default)
+			OpenTracing.ITracer? tracer = default,
+			OpenTracing.IScope? parentScope = default)
 		{
 			_httpClient = Guard.Argument(()=> httpClient).NotNull().Value;
 			_tracer = tracer;
+			_parentScope = parentScope;
 		}
 
 		public string? UriString { get; set; }
@@ -27,10 +29,12 @@ namespace RandomWebBrowsing.Steps
 		{
 			using var scope = _tracer?
 				.BuildDefaultSpan()
-				.WithTag(nameof(UriString), UriString)
+				.AsChildOf(_parentScope?.Span)
 				.StartActive(finishSpanOnDispose: true);
 
 			Guard.Argument(() => UriString).NotNull().NotEmpty().NotWhiteSpace().StartsWith("http");
+
+			scope?.Span.Log(nameof(UriString), UriString);
 
 			var uri = new Uri(UriString, UriKind.Absolute);
 
