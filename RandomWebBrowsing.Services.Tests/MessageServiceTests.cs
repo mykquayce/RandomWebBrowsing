@@ -25,6 +25,7 @@ namespace RandomWebBrowsing.Services.Tests
 		[InlineData("https://old.reddit.com/r/euphoria/comments/cm3ryv/euphoria_s1_e8_and_salt_the_earth_behind_you/.rss", MessageTypes.Thread)]
 		[InlineData("https://old.reddit.com/r/ImaginaryLandscapes/comments/9dnj8h/reminder_a_special_flair_is_available_for/.rss", MessageTypes.Thread)]
 		[InlineData("https://old.reddit.com/r/Colorization/comments/ctgnfn/king_peter_i_karadjordjevi%C4%87_18441921_aka_the_king/.rss", MessageTypes.Thread)]
+		[InlineData("https://play.google.com/store/apps/details?id=com.AlchemistCreative.Polygolf", MessageTypes.Link)]
 		public void MessageServiceTests_GetMessageTypes(string message, MessageTypes expected)
 		{
 			var actual = _service.GetMessageTypes(message);

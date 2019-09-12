@@ -15,7 +15,7 @@ namespace RandomWebBrowsing.Services.Concrete
 		private const string _subredditUriPattern = @"^https:\/\/old\.reddit\.com\/r\/[_\d\w]+\/\.rss\b";
 		private const string _threadUriPattern = @"^https:\/\/old\.reddit\.com\/r\/[_\d\w]+\/comments\/[_\d\w]+\/[%_\d\w]+\/\.rss$$";
 		private const string _htmlLinkPattern = @"(href|src)=""(?<Uri>http.+?)""";
-		private const string _linkPattern = @"^https?:\/\/[-\._\d\w\/]+$";
+		private const string _linkPattern = @"^https?:\/\/.+?[^\""^\s]+$";
 		private static readonly Regex _subredditUriRegex = new Regex(_subredditUriPattern, _regexOptions);
 		private static readonly Regex _threadUriRegex = new Regex(_threadUriPattern, _regexOptions);
 		private static readonly Regex _htmlLinkRegex = new Regex(_htmlLinkPattern, _regexOptions);
