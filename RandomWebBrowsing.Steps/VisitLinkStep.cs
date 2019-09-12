@@ -38,7 +38,13 @@ namespace RandomWebBrowsing.Steps
 
 			var uri = new Uri(UriString, UriKind.Absolute);
 
-			await _httpClient.VisitLinkAsync(uri);
+			try
+			{
+				await _httpClient.VisitLinkAsync(uri);
+			}
+#pragma warning disable CA1031 // Do not catch general exception types
+			catch { }
+#pragma warning restore CA1031 // Do not catch general exception types
 
 			return ExecutionResult.Next();
 		}
