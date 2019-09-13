@@ -1,6 +1,7 @@
 using Dawn;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,12 +12,18 @@ namespace RandomWebBrowsing.WorkerService
 {
 	public class Worker : BackgroundService
 	{
+		private readonly int _intervalMilliseconds;
 		private readonly IWorkflowHost _workflowHost;
 
 		public Worker(
-			IWorkflowHost workflowHost)
+			IWorkflowHost workflowHost,
+			IOptions<Config.Settings> options)
 		{
 			_workflowHost = Guard.Argument(() => workflowHost).NotNull().Value;
+
+			Guard.Argument(() => options).NotNull();
+			Guard.Argument(() => options.Value).NotNull();
+			_intervalMilliseconds = Guard.Argument(() => options.Value.IntervalMilliseconds).Positive().Value!.Value;
 
 			_workflowHost.OnStepError += WorkflowHost_OnStepError;
 
@@ -42,7 +49,7 @@ namespace RandomWebBrowsing.WorkerService
 				var persistenceData = new Models.PersistenceData();
 				await _workflowHost.StartWorkflow(workflowId: nameof(Workflows.Workflow), data: persistenceData);
 
-				await Task.Delay(1_000, stoppingToken);
+				await Task.Delay(_intervalMilliseconds, stoppingToken);
 			}
 
 			_workflowHost.Stop();
