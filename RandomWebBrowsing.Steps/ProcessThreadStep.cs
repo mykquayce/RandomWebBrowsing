@@ -37,7 +37,16 @@ namespace RandomWebBrowsing.Steps
 				.AsChildOf(_parentScope?.Span)
 				.StartActive(finishSpanOnDispose: true);
 
-			Guard.Argument(() => ThreadUriString).NotNull().NotEmpty().NotWhiteSpace();
+			try
+			{
+				Guard.Argument(() => ThreadUriString).NotNull().NotEmpty().NotWhiteSpace();
+			}
+			catch (Exception exception)
+			{
+				scope?.Span.Log(exception);
+
+				throw;
+			}
 
 			var uri = new Uri(ThreadUriString!, UriKind.Absolute);
 
