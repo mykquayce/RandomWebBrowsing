@@ -10,7 +10,7 @@
     <PackageReference Include="Dawn.Guard" Version="1.9.0" />
     <PackageReference Include="Helpers.Common" Version="1.0.5-preview" />
     <PackageReference Include="Helpers.Tracing" Version="1.0.10-preview" />
-    <PackageReference Include="WorkflowCore" Version="2.0.1" />
+    <PackageReference Include="WorkflowCore" Version="2.1.0" />
   </ItemGroup>
 
   <ItemGroup>
