@@ -1,0 +1,38 @@
+version: '3.7'
+
+services:
+
+  rabbitmq:
+    image: rabbitmq:management
+    environment:
+      RABBITMQ_DEFAULT_PASS_FILE: /run/secrets/rabbitmq_pass
+      RABBITMQ_DEFAULT_USER_FILE: /run/secrets/rabbitmq_user
+    ports:
+    - 5901:5672/tcp
+    - 5902:15672/tcp
+    secrets:
+    - source: rabbitmq_pass
+    - source: rabbitmq_user
+    volumes:
+    - rabbitmq-volume:/var/lib/rabbitmq:rw
+ 
+  service:
+    image: eassbhhtgu/randomwebbrowsing:latest
+    environment:
+    - NETCORE_ENVIRONMENT=Production
+    depends_on:
+    - rabbitmq
+    secrets:
+    - source: rabbitmq_pass
+    - source: rabbitmq_user
+
+secrets:
+  rabbitmq_pass:
+    external: true
+    name: randomwebbrowsing_rabbitmq_pass
+  rabbitmq_user:
+    external: true
+    name: randomwebbrowsing_rabbitmq_user
+
+volumes:
+  rabbitmq-volume: {}
