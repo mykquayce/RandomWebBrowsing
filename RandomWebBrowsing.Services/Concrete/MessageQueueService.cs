@@ -9,7 +9,7 @@ namespace RandomWebBrowsing.Services.Concrete
 
 		public MessageQueueService(
 			IOptions<Config.Settings> options,
-			IOptions<Helpers.RabbitMQ.Models.Settings> settingsOptions)
+			IOptions<Helpers.RabbitMQ.Concrete.RabbitMQSettings> settingsOptions)
 			: base(settingsOptions.Value)
 		{
 			Guard.Argument(() => options).NotNull();

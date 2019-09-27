@@ -60,7 +60,7 @@ namespace RandomWebBrowsing.WorkerService
 
 					services
 						.Configure<List<string>>(hostContext.Configuration.GetSection("Blacklist"))
-						.Configure<Helpers.RabbitMQ.Models.Settings>(hostContext.Configuration.GetSection("RabbitMQSettings"))
+						.Configure<Helpers.RabbitMQ.Concrete.RabbitMQSettings>(hostContext.Configuration.GetSection(nameof(Helpers.RabbitMQ.Concrete.RabbitMQSettings)))
 						.Configure<Helpers.Jaeger.Models.Settings>(hostContext.Configuration.GetSection("JaegerSettings"))
 						.Configure<Config.Settings>(hostContext.Configuration.GetSection(nameof(Config.Settings)))
 						.Configure<Config.Uris>(hostContext.Configuration.GetSection(nameof(Config.Uris)));

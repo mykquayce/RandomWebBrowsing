@@ -10,7 +10,7 @@ namespace RandomWebBrowsing.Steps.Tests
 	public sealed class MessageQueueTests : IDisposable
 	{
 		private static readonly Config.Settings _settings = new Config.Settings { QueueName = "test", };
-		private static readonly Helpers.RabbitMQ.Models.Settings _rabbitSettings = new Helpers.RabbitMQ.Models.Settings
+		private static readonly Helpers.RabbitMQ.IRabbitMQSettings _rabbitSettings = new Helpers.RabbitMQ.Concrete.RabbitMQSettings
 		{
 			HostName = "localhost",
 			Password = "guest",
@@ -27,7 +27,7 @@ namespace RandomWebBrowsing.Steps.Tests
 		public MessageQueueTests()
 		{
 			var options = Mock.Of<IOptions<Config.Settings>>(o => o.Value == _settings);
-			var rabbitSettingsOptions = Mock.Of<IOptions<Helpers.RabbitMQ.Models.Settings>>(o => o.Value == _rabbitSettings);
+			var rabbitSettingsOptions = Mock.Of<IOptions<Helpers.RabbitMQ.Concrete.RabbitMQSettings>>(o => o.Value == _rabbitSettings);
 
 			_messageQueueService = new Services.Concrete.MessageQueueService(options, rabbitSettingsOptions);
 
