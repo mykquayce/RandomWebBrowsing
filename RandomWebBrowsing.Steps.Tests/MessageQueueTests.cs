@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Options;
-using Moq;
 using System;
 using System.Threading.Tasks;
 using WorkflowCore.Models;
@@ -10,7 +9,7 @@ namespace RandomWebBrowsing.Steps.Tests
 	public sealed class MessageQueueTests : IDisposable
 	{
 		private static readonly Config.Settings _settings = new Config.Settings { QueueName = "test", };
-		private static readonly Helpers.RabbitMQ.IRabbitMQSettings _rabbitSettings = new Helpers.RabbitMQ.Concrete.RabbitMQSettings
+		private static readonly Helpers.RabbitMQ.Concrete.RabbitMQSettings _rabbitSettings = new Helpers.RabbitMQ.Concrete.RabbitMQSettings
 		{
 			HostName = "localhost",
 			Password = "guest",
@@ -26,8 +25,8 @@ namespace RandomWebBrowsing.Steps.Tests
 
 		public MessageQueueTests()
 		{
-			var options = Mock.Of<IOptions<Config.Settings>>(o => o.Value == _settings);
-			var rabbitSettingsOptions = Mock.Of<IOptions<Helpers.RabbitMQ.Concrete.RabbitMQSettings>>(o => o.Value == _rabbitSettings);
+			var options = Options.Create(_settings);
+			var rabbitSettingsOptions = Options.Create(_rabbitSettings);
 
 			_messageQueueService = new Services.Concrete.MessageQueueService(options, rabbitSettingsOptions);
 
