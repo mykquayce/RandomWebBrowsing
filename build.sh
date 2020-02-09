@@ -1,7 +1,7 @@
 #! /bin/bash
 
-docker pull mcr.microsoft.com/dotnet/core/runtime:3.0
-docker pull mcr.microsoft.com/dotnet/core/sdk:3.0
+docker pull mcr.microsoft.com/dotnet/core/runtime:3.1
+docker pull mcr.microsoft.com/dotnet/core/sdk:3.1
 docker pull rabbitmq:management
 
 docker build --tag eassbhhtgu/randomwebbrowsing .
