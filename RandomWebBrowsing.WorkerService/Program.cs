@@ -23,7 +23,7 @@ namespace RandomWebBrowsing.WorkerService
 						hostContext.HostingEnvironment.ApplicationName = System.Reflection.Assembly.GetAssembly(typeof(Program))!.GetName().Name;
 					}
 
-					var environmentName = Environment.GetEnvironmentVariable("NETCORE_ENVIRONMENT") ?? Environments.Production;
+					var environmentName = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? Environments.Production;
 
 					hostContext.HostingEnvironment.EnvironmentName = environmentName;
 
