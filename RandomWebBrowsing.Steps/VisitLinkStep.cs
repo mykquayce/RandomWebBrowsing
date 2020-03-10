@@ -11,28 +11,22 @@ namespace RandomWebBrowsing.Steps
 	{
 		private readonly Clients.IHttpClient _httpClient;
 		private readonly OpenTracing.ITracer? _tracer;
-		private readonly OpenTracing.IScope? _parentScope;
 
 		public VisitLinkStep(
 			Clients.IHttpClient httpClient,
-			OpenTracing.ITracer? tracer = default,
-			OpenTracing.IScope? parentScope = default)
+			OpenTracing.ITracer? tracer = default)
 		{
 			_httpClient = Guard.Argument(()=> httpClient).NotNull().Value;
 			_tracer = tracer;
-			_parentScope = parentScope;
 		}
 
 		public string? UriString { get; set; }
 
 		public async Task<ExecutionResult> RunAsync(IStepExecutionContext context)
 		{
-			using var scope = _tracer?
-				.BuildDefaultSpan()
-				.AsChildOf(_parentScope?.Span)
-				.StartActive(finishSpanOnDispose: true);
+			using var scope = _tracer?.StartSpan();
 
-			Guard.Argument(() => UriString).NotNull().NotEmpty().NotWhiteSpace().StartsWith("http");
+			Guard.Argument(() => UriString!).NotNull().NotEmpty().NotWhiteSpace().StartsWith("http");
 
 			scope?.Span.Log(nameof(UriString), UriString);
 

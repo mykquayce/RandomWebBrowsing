@@ -1,4 +1,5 @@
 ﻿using Dawn;
+using Helpers.Tracing;
 using Microsoft.Extensions.Options;
 using RandomWebBrowsing.Models;
 using System;
@@ -20,16 +21,23 @@ namespace RandomWebBrowsing.Services.Concrete
 		private static readonly Regex _threadUriRegex = new Regex(_threadUriPattern, _regexOptions);
 		private static readonly Regex _htmlLinkRegex = new Regex(_htmlLinkPattern, _regexOptions);
 		private static readonly Regex _linkRegex = new Regex(_linkPattern, _regexOptions);
+		private readonly OpenTracing.ITracer? _tracer;
 
 		public MessageService(
+			OpenTracing.ITracer? tracer,
 			IOptions<List<string>> options)
 		{
 			Guard.Argument(() => options).NotNull();
 			_blacklist = Guard.Argument(() => options.Value).NotNull().DoesNotContainNull().DoesNotContain(string.Empty).Value;
+			_tracer = tracer;
 		}
 
 		public IEnumerable<Uri> GetLinksFromComment(string comment)
 		{
+			using var scope = _tracer?.StartSpan();
+
+			scope?.Span.SetTag(nameof(comment), comment);
+
 			Guard.Argument(() => comment).NotNull().NotEmpty().NotWhiteSpace();
 
 			var matches = _htmlLinkRegex.Matches(comment);
@@ -53,6 +61,10 @@ namespace RandomWebBrowsing.Services.Concrete
 
 		public MessageTypes GetMessageTypes(string message)
 		{
+			using var scope = _tracer?.StartSpan();
+
+			scope?.Span.SetTag(nameof(message), message);
+
 			if (string.Equals(message, "https://old.reddit.com/r/random/.rss", StringComparison.InvariantCultureIgnoreCase))
 			{
 				return MessageTypes.RandomSubreddit;

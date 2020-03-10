@@ -10,16 +10,13 @@ namespace RandomWebBrowsing.Steps
 	{
 		private readonly Services.IMessageService _evaluateMessageService;
 		private readonly OpenTracing.ITracer? _tracer;
-		private readonly OpenTracing.IScope? _parentScope;
 
 		public EvaluateMessageStep(
 			Services.IMessageService evaluateMessageService,
-			OpenTracing.ITracer? tracer = default,
-			OpenTracing.IScope? parentScope = default)
+			OpenTracing.ITracer? tracer = default)
 		{
 			_evaluateMessageService = evaluateMessageService;
 			_tracer = tracer;
-			_parentScope = parentScope;
 		}
 
 		public string? Message { get; set; }
@@ -27,12 +24,9 @@ namespace RandomWebBrowsing.Steps
 
 		public Task<ExecutionResult> RunAsync(IStepExecutionContext context)
 		{
-			using var scope = _tracer?
-				.BuildDefaultSpan()
-				.AsChildOf(_parentScope?.Span)
-				.StartActive(finishSpanOnDispose: true);
+			using var scope = _tracer?.StartSpan();
 
-			Guard.Argument(() => Message).NotNull().NotEmpty().NotWhiteSpace();
+			Guard.Argument(() => Message!).NotNull().NotEmpty().NotWhiteSpace();
 
 			MessageTypes = _evaluateMessageService.GetMessageTypes(Message!);
 

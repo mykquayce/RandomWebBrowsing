@@ -28,7 +28,7 @@ namespace RandomWebBrowsing.Services.Tests
 
 			var httpClient = new Clients.Concrete.HttpClient(httpClientFactoryMock.Object);
 
-			_redditService = new Services.Concrete.RedditService(httpClient);
+			_redditService = new Services.Concrete.RedditService(tracer: default, httpClient);
 		}
 
 		public void Dispose()

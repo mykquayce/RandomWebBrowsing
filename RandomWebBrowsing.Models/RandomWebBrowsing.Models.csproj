@@ -6,8 +6,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Helpers.Tracing" Version="1.0.13" />
-  </ItemGroup>
-
 </Project>

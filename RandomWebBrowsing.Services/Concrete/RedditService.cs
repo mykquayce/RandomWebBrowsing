@@ -1,5 +1,6 @@
 ﻿using Dawn;
 using Helpers.Common;
+using Helpers.Tracing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,28 +10,41 @@ namespace RandomWebBrowsing.Services.Concrete
 {
 	public class RedditService : IRedditService
 	{
+		private readonly OpenTracing.ITracer? _tracer;
 		private readonly Clients.IHttpClient _client;
 
 		public RedditService(
+			OpenTracing.ITracer? tracer,
 			Clients.IHttpClient client)
 		{
 			_client = Guard.Argument(() => client).NotNull().Value;
+			_tracer = tracer;
 		}
 
 		public async Task<Uri> GetRandomSubredditAsync()
 		{
+			using var scope = _tracer?.StartSpan();
+
 			var uri = new Uri("/r/random/.rss", UriKind.Relative);
 
 			var headers = await _client.GetHeadersAsync(uri);
 
 			var uriString = headers["Location"].Single();
 
-			return new Uri(uriString, UriKind.Absolute)
+			var subredditUri = new Uri(uriString, UriKind.Absolute)
 				.StripQuery();
+
+			scope?.Span.SetTag(nameof(subredditUri), subredditUri.OriginalString);
+
+			return subredditUri;
 		}
 
 		public async IAsyncEnumerable<Uri> GetSubredditThreadsAsync(Uri subredditUri)
 		{
+			using var scope = _tracer?.StartSpan();
+
+			scope?.Span.SetTag(nameof(subredditUri), subredditUri.OriginalString);
+
 			Guard.Argument(() => subredditUri).NotNull();
 			Guard.Argument(() => subredditUri.OriginalString)
 				.NotNull()
@@ -61,6 +75,10 @@ namespace RandomWebBrowsing.Services.Concrete
 
 		public async IAsyncEnumerable<string> GetThreadCommentsAsync(Uri threadUri)
 		{
+			using var scope = _tracer?.StartSpan();
+
+			scope?.Span.SetTag(nameof(threadUri), threadUri.OriginalString);
+
 			Guard.Argument(() => threadUri).NotNull();
 			Guard.Argument(() => threadUri.OriginalString)
 				.NotNull()

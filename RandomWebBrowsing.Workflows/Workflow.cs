@@ -11,15 +11,13 @@ namespace RandomWebBrowsing.Workflows
 		public void Build(IWorkflowBuilder<Models.PersistenceData> builder)
 		{
 			builder
-				.StartWith<Steps.StartParentTraceStep>()
-				.Then<Steps.ConsumeMessageStep>()
+				.StartWith<Steps.ConsumeMessageStep>()
 					.Output(data => data.Message, step => step.Message)
 					.Output(data => data.DeliveryTag, step => step.DeliveryTag)
 				.If(data => data.Message == default)
 					.Do(then => then
 						.StartWith<Steps.PublishMessageStep>()
 							.Input(step => step.Message, _ => "https://old.reddit.com/r/random/.rss")
-							.Then<Steps.StopParentTraceStep>()
 						.EndWorkflow()
 					)
 				.Then<Steps.EvaluateMessageStep>()
@@ -62,7 +60,6 @@ namespace RandomWebBrowsing.Workflows
 					)
 				.Then<Steps.AcknowledgeMessageStep>()
 					.Input(step => step.DeliveryTag, data => data.DeliveryTag)
-				.Then<Steps.StopParentTraceStep>()
 				.EndWorkflow();
 		}
 	}

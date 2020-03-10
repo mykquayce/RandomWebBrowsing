@@ -13,16 +13,13 @@ namespace RandomWebBrowsing.Steps
 	{
 		private readonly Services.IRedditService _redditService;
 		private readonly OpenTracing.ITracer? _tracer;
-		private readonly OpenTracing.IScope? _parentScope;
 
 		public GetSubredditThreadsStep(
 			Services.IRedditService redditService,
-			OpenTracing.ITracer? tracer = default,
-			OpenTracing.IScope? parentScope = default)
+			OpenTracing.ITracer? tracer = default)
 		{
 			_redditService = Guard.Argument(() => redditService).NotNull().Value;
 			_tracer = tracer;
-			_parentScope = parentScope;
 		}
 
 		public string? SubredditUriString { get; set; }
@@ -30,12 +27,9 @@ namespace RandomWebBrowsing.Steps
 
 		public async Task<ExecutionResult> RunAsync(IStepExecutionContext context)
 		{
-			using var scope = _tracer?
-				.BuildDefaultSpan()
-				.AsChildOf(_parentScope?.Span)
-				.StartActive(finishSpanOnDispose: true);
+			using var scope = _tracer?.StartSpan();
 
-			Guard.Argument(() => SubredditUriString)
+			Guard.Argument(() => SubredditUriString!)
 				.NotNull()
 				.NotEmpty()
 				.NotWhiteSpace()

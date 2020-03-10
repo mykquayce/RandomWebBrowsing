@@ -16,7 +16,7 @@ namespace RandomWebBrowsing.Services.Tests
 			var blacklist = new List<string>();
 			var options = Mock.Of<IOptions<List<string>>>(o => o.Value == blacklist);
 
-			_service = new Concrete.MessageService(options);
+			_service = new Concrete.MessageService(default, options);
 		}
 
 		[Theory]

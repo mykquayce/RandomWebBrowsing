@@ -9,7 +9,7 @@ namespace RandomWebBrowsing.Steps.Tests
 	public sealed class MessageQueueTests : IDisposable
 	{
 		private static readonly Config.Settings _settings = new Config.Settings { QueueName = "test", };
-		private static readonly Helpers.RabbitMQ.Concrete.RabbitMQSettings _rabbitSettings = new Helpers.RabbitMQ.Concrete.RabbitMQSettings
+		private static readonly Helpers.RabbitMQ.Models.RabbitMQSettings _rabbitSettings = new Helpers.RabbitMQ.Models.RabbitMQSettings
 		{
 			HostName = "localhost",
 			Password = "guest",

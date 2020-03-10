@@ -13,18 +13,15 @@ namespace RandomWebBrowsing.Steps
 		private readonly Services.IRedditService _redditService;
 		private readonly Services.IMessageService _messageService;
 		private readonly OpenTracing.ITracer? _tracer;
-		private readonly OpenTracing.IScope? _parentScope;
 
 		public ProcessThreadStep(
 			Services.IRedditService redditService,
 			Services.IMessageService messageService,
-			OpenTracing.ITracer? tracer = default,
-			OpenTracing.IScope? parentScope = default)
+			OpenTracing.ITracer? tracer = default)
 		{
 			_redditService = Guard.Argument(() => redditService).NotNull().Value;
 			_messageService = Guard.Argument(() => messageService).NotNull().Value;
 			_tracer = tracer;
-			_parentScope = parentScope;
 		}
 
 		public string? ThreadUriString { get; set; }
@@ -32,14 +29,11 @@ namespace RandomWebBrowsing.Steps
 
 		public async Task<ExecutionResult> RunAsync(IStepExecutionContext context)
 		{
-			using var scope = _tracer?
-				.BuildDefaultSpan()
-				.AsChildOf(_parentScope?.Span)
-				.StartActive(finishSpanOnDispose: true);
+			using var scope = _tracer?.StartSpan();
 
 			try
 			{
-				Guard.Argument(() => ThreadUriString).NotNull().NotEmpty().NotWhiteSpace();
+				Guard.Argument(() => ThreadUriString!).NotNull().NotEmpty().NotWhiteSpace();
 			}
 			catch (Exception exception)
 			{

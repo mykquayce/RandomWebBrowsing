@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.Common" Version="1.0.6" />
-    <PackageReference Include="Helpers.RabbitMQ" Version="1.0.17" />
+    <PackageReference Include="Helpers.Common" Version="1.0.7" />
+    <PackageReference Include="Helpers.RabbitMQ" Version="1.1.1" />
   </ItemGroup>
 
   <ItemGroup>

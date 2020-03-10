@@ -8,14 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dawn.Guard" Version="1.10.0" />
-    <PackageReference Include="Helpers.HttpClient" Version="1.0.16" />
-    <PackageReference Include="Helpers.Jaeger" Version="1.0.13" />
-    <PackageReference Include="Helpers.RabbitMQ" Version="1.0.17" />
+    <PackageReference Include="Helpers.DockerSecrets" Version="1.2.4" />
+    <PackageReference Include="Helpers.Jaeger" Version="1.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.1" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="3.1.1" />
-    <PackageReference Include="WorkflowCore" Version="3.1.4" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.2" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="3.1.2" />
   </ItemGroup>
 
   <ItemGroup>

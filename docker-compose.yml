@@ -2,14 +2,20 @@ version: '3.7'
 
 services:
 
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+    - 34101:16686/tcp
+    volumes:
+    - jaeger-volume:/tmp:rw
+
   rabbitmq:
     image: rabbitmq:management
     environment:
       RABBITMQ_DEFAULT_PASS_FILE: /run/secrets/rabbitmq_pass
       RABBITMQ_DEFAULT_USER_FILE: /run/secrets/rabbitmq_user
     ports:
-    - 5901:5672/tcp
-    - 5902:15672/tcp
+    - 34102:15672/tcp
     secrets:
     - source: rabbitmq_pass
     - source: rabbitmq_user
@@ -21,6 +27,7 @@ services:
     environment:
     - DOTNET_ENVIRONMENT=Production
     depends_on:
+    - jaeger
     - rabbitmq
     secrets:
     - source: rabbitmq_pass
@@ -35,4 +42,5 @@ secrets:
     name: randomwebbrowsing_rabbitmq_user
 
 volumes:
+  jaeger-volume: {}
   rabbitmq-volume: {}
