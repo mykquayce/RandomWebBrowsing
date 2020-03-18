@@ -29,6 +29,9 @@ services:
     depends_on:
     - jaeger
     - rabbitmq
+    deploy:
+      mode: replicated
+      replicas: 6
     secrets:
     - source: rabbitmq_pass
     - source: rabbitmq_user
