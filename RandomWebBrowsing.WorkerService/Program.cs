@@ -31,8 +31,8 @@ namespace RandomWebBrowsing.WorkerService
 						.SetBasePath(Environment.CurrentDirectory)
 						.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
 						.AddJsonFile($"appsettings.{environmentName}.json", optional: true, reloadOnChange: true)
-						.AddDockerSecret("rabbit-pass", "RabbitMQSettings:Password")
-						.AddDockerSecret("rabbit-user", "RabbitMQSettings:UserName");
+						.AddDockerSecret("rabbitmq_pass", "RabbitMQSettings:Password")
+						.AddDockerSecret("rabbitmq_user", "RabbitMQSettings:UserName");
 				});
 
 			hostBuilder
