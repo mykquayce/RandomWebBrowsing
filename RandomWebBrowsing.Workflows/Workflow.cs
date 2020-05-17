@@ -25,9 +25,8 @@ namespace RandomWebBrowsing.Workflows
 					.Output(data => data.MessageTypes, step => step.MessageTypes)
 				.If(data => (data.MessageTypes & Models.MessageTypes.RandomSubreddit) != 0)
 					.Do(then => then
-						.StartWith<Steps.GetUriRedirectStep>()
-							.Input(step => step.UriString, data => data.Message)
-							.Output(data => data.Message, step => step.RedirectUriString)
+						.StartWith<Steps.GetRandomSubredditStep>()
+							.Output(data => data.Message, step => step.RandomSubredditUri!.OriginalString)
 						.Then<Steps.PublishMessageStep>()
 							.Input(step => step.Message, data => data.Message)
 					)

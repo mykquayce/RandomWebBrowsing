@@ -9,14 +9,14 @@ namespace RandomWebBrowsing.Steps
 {
 	public class VisitLinkStep : IStepBody
 	{
-		private readonly Clients.IHttpClient _httpClient;
+		private readonly Clients.IWebClient _webClient;
 		private readonly OpenTracing.ITracer? _tracer;
 
 		public VisitLinkStep(
-			Clients.IHttpClient httpClient,
+			Clients.IWebClient webClient,
 			OpenTracing.ITracer? tracer = default)
 		{
-			_httpClient = Guard.Argument(()=> httpClient).NotNull().Value;
+			_webClient = Guard.Argument(()=> webClient).NotNull().Value;
 			_tracer = tracer;
 		}
 
@@ -34,7 +34,7 @@ namespace RandomWebBrowsing.Steps
 
 			try
 			{
-				await _httpClient.VisitLinkAsync(uri);
+				await _webClient.VisitLinkAsync(uri);
 			}
 #pragma warning disable CA1031 // Do not catch general exception types
 			catch { }

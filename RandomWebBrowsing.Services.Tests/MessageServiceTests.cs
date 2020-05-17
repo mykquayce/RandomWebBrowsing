@@ -1,52 +1,48 @@
-﻿using Microsoft.Extensions.Options;
-using Moq;
-using RandomWebBrowsing.Models;
-using System.Collections.Generic;
+﻿using RandomWebBrowsing.Models;
 using System.Linq;
 using Xunit;
 
 namespace RandomWebBrowsing.Services.Tests
 {
-	public class MessageServiceTests
+	public class MessageServiceTests : IClassFixture<Fixtures.MessageServiceFixture>
 	{
-		private readonly IMessageService _service;
+		private readonly IMessageService _sut;
 
-		public MessageServiceTests()
+		public MessageServiceTests(Fixtures.MessageServiceFixture messageServiceFixture)
 		{
-			var blacklist = new List<string>();
-			var options = Mock.Of<IOptions<List<string>>>(o => o.Value == blacklist);
-
-			_service = new Concrete.MessageService(default, options);
+			_sut = messageServiceFixture.MessageService;
 		}
 
 		[Theory]
+		[InlineData(default, MessageTypes.None)]
+		[InlineData("", MessageTypes.None)]
+		[InlineData(" ", MessageTypes.None)]
 		[InlineData("https://old.reddit.com/r/random/.rss", MessageTypes.RandomSubreddit)]
-		[InlineData("https://old.reddit.com/r/totalwar/.rss?utm_campaign=redirect&utm_medium=desktop&utm_source=reddit&utm_name=random_subreddit", MessageTypes.Subreddit)]
-		[InlineData("https://old.reddit.com/r/euphoria/comments/cm3ryv/euphoria_s1_e8_and_salt_the_earth_behind_you/.rss", MessageTypes.Thread)]
-		[InlineData("https://old.reddit.com/r/ImaginaryLandscapes/comments/9dnj8h/reminder_a_special_flair_is_available_for/.rss", MessageTypes.Thread)]
-		[InlineData("https://old.reddit.com/r/Colorization/comments/ctgnfn/king_peter_i_karadjordjevi%C4%87_18441921_aka_the_king/.rss", MessageTypes.Thread)]
-		[InlineData("https://play.google.com/store/apps/details?id=com.AlchemistCreative.Polygolf", MessageTypes.Link)]
-		public void MessageServiceTests_GetMessageTypes(string message, MessageTypes expected)
+		[InlineData("https://old.reddit.com/r/BuyItForLife/.rss", MessageTypes.Subreddit)]
+		[InlineData("https://old.reddit.com/r/BuyItForLife/comments/gkwf8y/my_1960s_philips_type_m_3060_4_speed_hand_whisk/.rss", MessageTypes.Thread)]
+		[InlineData("https://www.youtube.com/watch?v=WW58zWrqQdc", MessageTypes.Link)]
+		[InlineData("A quick brown fox jumps over the lazy dog", MessageTypes.Comment)]
+		public void GetMessageType(string message, MessageTypes expected)
 		{
-			var actual = _service.GetMessageTypes(message);
+			var actual = _sut.GetMessageTypes(message);
 
 			Assert.Equal(expected, actual);
 		}
 
 		[Theory]
-		[InlineData(@"<!-- SC_OFF --><div class=""md""><p>Ok so labyrinth bud you can drop the album now</p> </div><!-- SC_ON -->", 0)]
 		[InlineData(
-			@"<!-- SC_OFF --><div class=""md""><p>I really want that as my ringtone lol whats the name of the song?</p> <p>edit: nvm found it <a href=""https://www.youtube.com/watch?v=WW58zWrqQdc"">https://www.youtube.com/watch?v=WW58zWrqQdc</a></p> </div><!-- SC_ON -->",
-			1)]
-		public void MessageServiceTests_GetLinksFromComment(string comment, int expectedCount)
+			"<!-- SC_OFF --><div class=\"md\"><p>I really want that as my ringtone lol whats the name of the song?</p> <p>edit: nvm found it <a href=\"https://www.youtube.com/watch?v=WW58zWrqQdc\">https://www.youtube.com/watch?v=WW58zWrqQdc</a></p> </div><!-- SC_ON -->",
+			"https://www.youtube.com/watch?v=WW58zWrqQdc")]
+		public void GetLinksFromComment(string comment, params string[] expecteds)
 		{
-			// Act
-			var uris = _service.GetLinksFromComment(comment).ToList();
+			var actual = _sut.GetLinksFromComment(comment).ToList();
 
-			// Assert
-			Assert.Equal(expectedCount, uris.Count);
-			Assert.All(uris, Assert.NotNull);
-			Assert.All(uris, uri => Assert.True(uri.IsAbsoluteUri));
+			Assert.Equal(expecteds.Length, actual.Count);
+
+			for (var a = 0; a < expecteds.Length; a++)
+			{
+				Assert.Equal(expecteds[a], actual[a].OriginalString);
+			}
 		}
 	}
 }

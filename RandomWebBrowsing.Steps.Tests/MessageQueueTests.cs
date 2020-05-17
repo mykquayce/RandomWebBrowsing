@@ -1,65 +1,42 @@
-using Microsoft.Extensions.Options;
-using System;
 using System.Threading.Tasks;
 using WorkflowCore.Models;
 using Xunit;
 
 namespace RandomWebBrowsing.Steps.Tests
 {
-	public sealed class MessageQueueTests : IDisposable
+	public class MessageQueueTests : IClassFixture<Fixtures.MessageQueueServiceFixture>
 	{
-		private static readonly Config.Settings _settings = new Config.Settings { QueueName = "test", };
-		private static readonly Helpers.RabbitMQ.Models.RabbitMQSettings _rabbitSettings = new Helpers.RabbitMQ.Models.RabbitMQSettings
-		{
-			HostName = "localhost",
-			Password = "guest",
-			Port = 5_672,
-			UserName = "guest",
-			VirtualHost = "/",
-		};
-
-		private readonly Services.IMessageQueueService _messageQueueService;
 		private readonly Steps.AcknowledgeMessageStep _acknowledgeMessageStep;
 		private readonly Steps.ConsumeMessageStep _consumeMessageStep;
 		private readonly Steps.PublishMessageStep _publishMessageStep;
 
-		public MessageQueueTests()
+		public MessageQueueTests(Fixtures.MessageQueueServiceFixture fixture)
 		{
-			var options = Options.Create(_settings);
-			var rabbitSettingsOptions = Options.Create(_rabbitSettings);
-
-			_messageQueueService = new Services.Concrete.MessageQueueService(options, rabbitSettingsOptions);
-
-			_consumeMessageStep = new Steps.ConsumeMessageStep(_messageQueueService);
-			_acknowledgeMessageStep = new Steps.AcknowledgeMessageStep(_messageQueueService);
-			_publishMessageStep = new Steps.PublishMessageStep(_messageQueueService);
-		}
-
-		public void Dispose()
-		{
-			_messageQueueService.Dispose();
+			_acknowledgeMessageStep = new Steps.AcknowledgeMessageStep(fixture.MessageQueueService);
+			_consumeMessageStep = new Steps.ConsumeMessageStep(fixture.MessageQueueService);
+			_publishMessageStep = new Steps.PublishMessageStep(fixture.MessageQueueService);
 		}
 
 		public Task<ExecutionResult> AcknowledgeAsync(ulong deliveryTag)
 		{
 			_acknowledgeMessageStep.DeliveryTag = deliveryTag;
-			return _acknowledgeMessageStep.RunAsync(default);
+			return _acknowledgeMessageStep.RunAsync(new StepExecutionContext());
 		}
 
 		public async Task<(string message, ulong deliveryTag)> ConsumeAsync()
 		{
-			await _consumeMessageStep.RunAsync(default);
+			await _consumeMessageStep.RunAsync(new StepExecutionContext());
 			return (_consumeMessageStep.Message!, _consumeMessageStep.DeliveryTag!.Value);
 		}
 
 		public Task<ExecutionResult> PublishAsync(string message)
 		{
 			_publishMessageStep.Message = message;
-			return _publishMessageStep.RunAsync(default);
+			return _publishMessageStep.RunAsync(new StepExecutionContext());
 		}
 
 		[Fact]
-		public async Task MessageQueueTests_PublishConsumeAcknowledge()
+		public async Task PublishConsumeAcknowledge()
 		{
 			await PublishAsync("first");
 			await PublishAsync("second");

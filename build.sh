@@ -1,8 +1,8 @@
 #! /bin/bash
 
 docker pull jaegertracing/all-in-one:latest
-docker pull mcr.microsoft.com/dotnet/core/runtime:3.1
-docker pull mcr.microsoft.com/dotnet/core/sdk:3.1
+docker pull mcr.microsoft.com/dotnet/runtime:5.0
+docker pull mcr.microsoft.com/dotnet/sdk:5.0
 docker pull rabbitmq:management
 
 docker build --tag eassbhhtgu/randomwebbrowsing .

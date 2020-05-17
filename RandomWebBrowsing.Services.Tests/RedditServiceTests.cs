@@ -1,45 +1,45 @@
-using Moq;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 using Xunit;
 
 namespace RandomWebBrowsing.Services.Tests
 {
-	public sealed class RedditServiceTests : IDisposable
+	public class RedditServiceTests : IDisposable
 	{
-		private readonly HttpClient _httpClient;
-		private readonly Services.IRedditService _redditService;
+		private readonly Stack<IDisposable> _disposables = new Stack<IDisposable>();
+		private readonly IRedditService _sut;
 
 		public RedditServiceTests()
 		{
 			var handler = new HttpClientHandler { AllowAutoRedirect = false, };
-
-			_httpClient = new HttpClient(handler, disposeHandler: true)
+			var netHttpClient = new HttpClient(handler)
 			{
-				BaseAddress = new Uri("https://old.reddit.com/", UriKind.Absolute),
+				BaseAddress = new Uri("https://old.reddit.com", UriKind.Absolute),
 			};
+			var xmlSerializerFactory = new XmlSerializerFactory();
+			var httpClient = new Clients.Concrete.WebClient(netHttpClient, xmlSerializerFactory);
+			_sut = new Concrete.RedditService(httpClient);
 
-			var httpClientFactoryMock = new Mock<IHttpClientFactory>();
-
-			httpClientFactoryMock
-				.Setup(f => f.CreateClient(It.Is<string>(s => s == nameof(Clients.Concrete.HttpClient))))
-				.Returns(_httpClient);
-
-			var httpClient = new Clients.Concrete.HttpClient(httpClientFactoryMock.Object);
-
-			_redditService = new Services.Concrete.RedditService(tracer: default, httpClient);
+			_disposables.Push(httpClient);
+			_disposables.Push(netHttpClient);
+			_disposables.Push(handler);
 		}
 
 		public void Dispose()
 		{
-			_httpClient?.Dispose();
+			while (_disposables.TryPop(out var disposable))
+			{
+				disposable?.Dispose();
+			}
 		}
 
 		[Fact]
-		public async Task RedditServiceTests_GetRandomSubredditAsync()
+		public async Task GetRandomSubreddit()
 		{
-			var actual = await _redditService.GetRandomSubredditAsync();
+			var actual = await _sut.GetRandomSubredditAsync();
 
 			Assert.Matches(
 				@"^https:\/\/old\.reddit\.com\/r\/[_\d\w]+\/.rss$",
@@ -47,19 +47,41 @@ namespace RandomWebBrowsing.Services.Tests
 		}
 
 		[Theory]
-		[InlineData("https://old.reddit.com/r/nostalgia/.rss")]
-		public async Task RedditServiceTests_GetSubredditThreadsAsync(string uriString)
+		[InlineData(10)]
+		public async Task GetManyRandomSubreddits(int attempts)
 		{
-			var count = 0;
-			var subredditUri = new Uri(uriString, UriKind.Absolute);
+			while (--attempts > 0)
+			{
+				// Act
+				var actual = await _sut.GetRandomSubredditAsync();
 
-			await foreach (var uri in _redditService.GetSubredditThreadsAsync(subredditUri))
+				// Assert
+				Assert.NotNull(actual);
+				Assert.NotNull(actual.OriginalString);
+				Assert.Matches(
+					@"^https:\/\/old\.reddit\.com\/r\/[_0-9A-Za-z]+\/\.rss$",
+					actual.OriginalString);
+			}
+		}
+
+		[Theory]
+		[InlineData("https://old.reddit.com/r/BuyItForLife/.rss")]
+		[InlineData("https://old.reddit.com/r/thinkorswim/.rss")]
+		public async Task GetSubredditThreads(string subredditThreadUriString)
+		{
+			// Arrange
+			var count = 0;
+			var subredditThreadUri = new Uri(subredditThreadUriString, UriKind.Absolute);
+
+			// Act
+			var uris = _sut.GetSubredditThreadsAsync(subredditThreadUri);
+
+			await foreach (var uri in uris)
 			{
 				count++;
-				Assert.NotNull(uri);
-				Assert.NotNull(uri.OriginalString);
-				Assert.NotEmpty(uri.OriginalString);
-				Assert.True(uri.IsAbsoluteUri);
+				Assert.Matches(
+					@"^https:\/\/old\.reddit\.com\/r\/[_0-9A-Za-z]+\/comments\/[0-9a-z]+\/[_0-9A-Za-z]+\/.rss$",
+					uri.OriginalString);
 			}
 
 			Assert.InRange(count, 1, int.MaxValue);
@@ -67,14 +89,17 @@ namespace RandomWebBrowsing.Services.Tests
 
 		[Theory]
 		[InlineData("https://old.reddit.com/r/euphoria/comments/cm3ryv/euphoria_s1_e8_and_salt_the_earth_behind_you/.rss")]
-		public async Task RedditServiceTests_GetThreadCommentsAsync(string threadUriString)
+		public async Task GetThreadComments(string uriString)
 		{
+			// Arrange
 			var count = 0;
-			var threadUri = new Uri(threadUriString, UriKind.Absolute);
+			var uri = new Uri(uriString, UriKind.Absolute);
 
-			await foreach (var comment in _redditService.GetThreadCommentsAsync(threadUri))
+			// Act
+			await foreach(var comment in _sut.GetThreadCommentsAsync(uri))
 			{
 				count++;
+				// Assert
 				Assert.NotNull(comment);
 				Assert.NotEmpty(comment);
 			}

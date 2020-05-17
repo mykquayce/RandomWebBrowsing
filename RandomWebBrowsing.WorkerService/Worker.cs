@@ -16,7 +16,7 @@ namespace RandomWebBrowsing.WorkerService
 		private readonly int _intervalMilliseconds;
 		private readonly IWorkflowHost _workflowHost;
 		private readonly OpenTracing.ITracer _tracer;
-		private readonly ILogger _logger;
+		private readonly ILogger<Worker> _logger;
 
 		public Worker(
 			IWorkflowHost workflowHost,

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace RandomWebBrowsing.Services
 {
-	public interface IRedditService
+	public interface IRedditService : IDisposable
 	{
 		Task<Uri> GetRandomSubredditAsync();
 		IAsyncEnumerable<Uri> GetSubredditThreadsAsync(Uri subredditUri);

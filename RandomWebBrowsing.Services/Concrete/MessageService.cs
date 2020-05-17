@@ -24,8 +24,8 @@ namespace RandomWebBrowsing.Services.Concrete
 		private readonly OpenTracing.ITracer? _tracer;
 
 		public MessageService(
-			OpenTracing.ITracer? tracer,
-			IOptions<List<string>> options)
+			IOptions<List<string>> options,
+			OpenTracing.ITracer? tracer = default)
 		{
 			Guard.Argument(() => options).NotNull();
 			_blacklist = Guard.Argument(() => options.Value).NotNull().DoesNotContainNull().DoesNotContain(string.Empty).Value;
@@ -61,31 +61,45 @@ namespace RandomWebBrowsing.Services.Concrete
 
 		public MessageTypes GetMessageTypes(string message)
 		{
+			static MessageTypes f(string s)
+			{
+				if (string.IsNullOrWhiteSpace(s))
+				{
+					return MessageTypes.None;
+				}
+
+				if (string.Equals(s, "https://old.reddit.com/r/random/.rss", StringComparison.InvariantCultureIgnoreCase))
+				{
+					return MessageTypes.RandomSubreddit;
+				}
+
+				if (_subredditUriRegex.IsMatch(s))
+				{
+					return MessageTypes.Subreddit;
+				}
+
+				if (_threadUriRegex.IsMatch(s))
+				{
+					return MessageTypes.Thread;
+				}
+
+				if (_linkRegex.IsMatch(s))
+				{
+					return MessageTypes.Link;
+				}
+
+				return MessageTypes.Comment;
+			}
+
 			using var scope = _tracer?.StartSpan();
 
-			scope?.Span.SetTag(nameof(message), message);
+			var result = f(message);
 
-			if (string.Equals(message, "https://old.reddit.com/r/random/.rss", StringComparison.InvariantCultureIgnoreCase))
-			{
-				return MessageTypes.RandomSubreddit;
-			}
+			scope?.Span.Log(
+				nameof(message), message,
+				nameof(result), result);
 
-			if (_subredditUriRegex.IsMatch(message))
-			{
-				return MessageTypes.Subreddit;
-			}
-
-			if (_threadUriRegex.IsMatch(message))
-			{
-				return MessageTypes.Thread;
-			}
-
-			if (_linkRegex.IsMatch(message))
-			{
-				return MessageTypes.Link;
-			}
-
-			return MessageTypes.Comment;
+			return result;
 		}
 	}
 }

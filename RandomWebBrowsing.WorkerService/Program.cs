@@ -39,8 +39,7 @@ namespace RandomWebBrowsing.WorkerService
 				.ConfigureServices((hostContext, services) =>
 				{
 					services
-						.AddHttpClient(
-							nameof(Clients.Concrete.HttpClient),
+						.AddHttpClient<Clients.IWebClient, Clients.Concrete.WebClient>(
 							(provider, client) =>
 							{
 								var uriSettings = hostContext.Configuration
@@ -58,7 +57,7 @@ namespace RandomWebBrowsing.WorkerService
 						});
 
 					services
-						.AddTransient<Clients.IHttpClient, Clients.Concrete.HttpClient>();
+						.AddSingleton(new System.Xml.Serialization.XmlSerializerFactory());
 
 					services
 						.Configure<List<string>>(hostContext.Configuration.GetSection("Blacklist"))
@@ -79,8 +78,8 @@ namespace RandomWebBrowsing.WorkerService
 						.AddTransient<Steps.AcknowledgeMessageStep>()
 						.AddTransient<Steps.ConsumeMessageStep>()
 						.AddTransient<Steps.EvaluateMessageStep>()
+						.AddTransient<Steps.GetRandomSubredditStep>()
 						.AddTransient<Steps.GetSubredditThreadsStep>()
-						.AddTransient<Steps.GetUriRedirectStep>()
 						.AddTransient<Steps.ProcessThreadStep>()
 						.AddTransient<Steps.PublishMessageStep>()
 						.AddTransient<Steps.VisitLinkStep>();

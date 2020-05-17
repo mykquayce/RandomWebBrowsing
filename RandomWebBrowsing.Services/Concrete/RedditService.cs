@@ -10,12 +10,12 @@ namespace RandomWebBrowsing.Services.Concrete
 {
 	public class RedditService : IRedditService
 	{
+		private readonly Clients.IWebClient _client;
 		private readonly OpenTracing.ITracer? _tracer;
-		private readonly Clients.IHttpClient _client;
 
 		public RedditService(
-			OpenTracing.ITracer? tracer,
-			Clients.IHttpClient client)
+			Clients.IWebClient client,
+			OpenTracing.ITracer? tracer = default)
 		{
 			_client = Guard.Argument(() => client).NotNull().Value;
 			_tracer = tracer;
@@ -97,6 +97,11 @@ namespace RandomWebBrowsing.Services.Concrete
 
 				yield return entry.content.Value;
 			}
+		}
+
+		public void Dispose()
+		{
+			_client?.Dispose();
 		}
 	}
 }
