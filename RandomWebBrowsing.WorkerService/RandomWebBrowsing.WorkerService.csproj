@@ -9,10 +9,10 @@
 
   <ItemGroup>
     <PackageReference Include="Helpers.DockerSecrets" Version="1.2.4" />
-    <PackageReference Include="Helpers.Jaeger" Version="1.1.0" />
+    <PackageReference Include="Helpers.Jaeger" Version="1.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0-preview.3.20215.2" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0-preview.3.20215.2" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0-preview.5.20278.1" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0-preview.5.20278.1" />
   </ItemGroup>
 
   <ItemGroup>

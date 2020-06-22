@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Helpers.RabbitMQ" Version="1.1.4" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="5.0.0-preview.3.20215.2" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="5.0.0-preview.5.20278.1" />
   </ItemGroup>
 
   <ItemGroup>
