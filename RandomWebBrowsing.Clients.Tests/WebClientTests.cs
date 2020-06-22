@@ -57,7 +57,8 @@ namespace RandomWebBrowsing.Clients.Tests
 		}
 
 		[Theory]
-		[InlineData("https://www.bing.com")]
+		[InlineData("https://i.imgur.com/JB6bl5l.jpg")]
+		[InlineData("https://i.imgur.com/hzKEh2E.jpg")]
 		public Task VisitLink(string uriString)
 		{
 			// Arrange
