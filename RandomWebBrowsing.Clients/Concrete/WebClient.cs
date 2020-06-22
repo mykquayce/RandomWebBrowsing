@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -13,7 +14,7 @@ namespace RandomWebBrowsing.Clients.Concrete
 {
 	public class WebClient : WebClientBase, IWebClient
 	{
-		private const int _bufferSize = 1_024, _maxDownloadSize = 10_485_760;
+		private const int _bufferSize = 1_024, _maxDownloadSize = 1_048_576;
 		private readonly XmlSerializerFactory _xmlSerializerFactory;
 
 		public WebClient(
@@ -42,11 +43,13 @@ namespace RandomWebBrowsing.Clients.Concrete
 		{
 			var response = await base.SendAsync(HttpMethod.Get, uri, callerMemberName: callerMemberName, callerFilePath: callerFilePath);
 
-			using var stream = await response!.TaskStream!;
+			await using var stream = await response!.TaskStream!;
 
 			var serializer = _xmlSerializerFactory.CreateSerializer(typeof(Models.Generated.feedType));
 
-			return (Models.Generated.feedType)serializer.Deserialize(stream);
+			var feed = (Models.Generated.feedType)serializer.Deserialize(stream);
+
+			return feed;
 		}
 
 		public async Task VisitLinkAsync(Uri uri)
@@ -56,7 +59,7 @@ namespace RandomWebBrowsing.Clients.Concrete
 
 			var response = await SendAsync(HttpMethod.Get, uri);
 
-			using var stream = await response!.TaskStream!;
+			await using var stream = await response!.TaskStream!;
 			using var reader = new StreamReader(stream);
 
 			do
