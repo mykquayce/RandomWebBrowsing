@@ -51,20 +51,20 @@ namespace RandomWebBrowsing.Clients.Concrete
 
 		public async Task VisitLinkAsync(Uri uri)
 		{
+			int count, total = 0;
+			var buffer = new Memory<char>(new char[_bufferSize]);
+
 			var response = await SendAsync(HttpMethod.Get, uri);
 
-			int offset = 0, count;
-			var buffer = new byte[_bufferSize];
-
 			using var stream = await response!.TaskStream!;
+			using var reader = new StreamReader(stream);
 
 			do
 			{
-				count = await stream.ReadAsync(buffer, offset, _bufferSize);
-
-				offset += count;
+				count = await reader.ReadBlockAsync(buffer);
+				total += count;
 			}
-			while (count > 0 && offset > _maxDownloadSize);
+			while (count > 0 && total < _maxDownloadSize);
 		}
 	}
 }
