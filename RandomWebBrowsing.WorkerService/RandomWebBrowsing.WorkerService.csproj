@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp5.0</TargetFramework>
+    <LangVersion>preview</LangVersion>
+    <Nullable>enable</Nullable>
     <UserSecretsId>dotnet-RandomWebBrowsing.WorkerService-88179CA8-B733-4AF6-BBFB-26570AC08A74</UserSecretsId>
   </PropertyGroup>
 
