@@ -3,7 +3,7 @@ using System;
 
 namespace RandomWebBrowsing.Steps.Tests.Fixtures
 {
-	public class MessageQueueServiceFixture : IDisposable
+	public sealed class MessageQueueServiceFixture : IDisposable
 	{
 		public MessageQueueServiceFixture()
 		{

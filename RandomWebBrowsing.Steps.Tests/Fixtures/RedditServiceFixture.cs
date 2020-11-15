@@ -2,7 +2,7 @@
 
 namespace RandomWebBrowsing.Steps.Tests.Fixtures
 {
-	public class RedditServiceFixture : IDisposable
+	public sealed class RedditServiceFixture : IDisposable
 	{
 		public RedditServiceFixture()
 		{

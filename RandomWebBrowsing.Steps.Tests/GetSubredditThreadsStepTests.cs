@@ -27,7 +27,7 @@ namespace RandomWebBrowsing.Steps.Tests
 			// Assert
 			Assert.NotNull(_sut.ThreadsUris);
 			Assert.NotEmpty(_sut.ThreadsUris);
-			Assert.All(_sut.ThreadsUris, s => Assert.Matches(@"^https:\/\/old\.reddit\.com\/r\/[_0-9A-Za-z]+\/comments\/[0-9a-z]+\/[_0-9A-Za-z]+\/.rss$", s));
+			Assert.All(_sut.ThreadsUris, s => Assert.Matches(@"^https:\/\/old\.reddit\.com\/r\/[_0-9A-Za-z]+\/comments\/[0-9a-z]+\/[_%0-9A-Za-z]+\/.rss$", s));
 		}
 	}
 }

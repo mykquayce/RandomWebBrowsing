@@ -6,16 +6,15 @@ using Xunit;
 
 namespace RandomWebBrowsing.Clients.Tests
 {
-	public class WebClientTests : IDisposable
+	public sealed class WebClientTests : IDisposable
 	{
-		private readonly HttpMessageHandler _httpMessageHandler;
 		private readonly HttpClient _httpClient;
 		private readonly IWebClient _sut;
 
 		public WebClientTests()
 		{
-			_httpMessageHandler = new HttpClientHandler { AllowAutoRedirect = false, };
-			_httpClient = new HttpClient(_httpMessageHandler);
+			var handler = new HttpClientHandler { AllowAutoRedirect = false, };
+			_httpClient = new HttpClient(handler);
 			var xmlSerializerFactory = new XmlSerializerFactory();
 			_sut = new Concrete.WebClient(_httpClient, xmlSerializerFactory);
 		}
@@ -72,7 +71,6 @@ namespace RandomWebBrowsing.Clients.Tests
 		{
 			_sut?.Dispose();
 			_httpClient?.Dispose();
-			_httpMessageHandler?.Dispose();
 		}
 	}
 }

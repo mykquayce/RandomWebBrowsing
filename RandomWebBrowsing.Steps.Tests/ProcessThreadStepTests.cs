@@ -20,26 +20,21 @@ namespace RandomWebBrowsing.Steps.Tests
 
 		[Theory]
 		[InlineData("https://old.reddit.com/r/Multicopter/comments/glex6t/first_build_completed_obviously_it_has_already/.rss")]
-		[InlineData("https://old.reddit.com/r/programming/comments/gle9a0/collection_of_100s_of_conference_tech_talks_in/.rss")]
+		[InlineData("https://old.reddit.com/r/programming/comments/iq1hi1/computer_productivity_why_it_is_important_that/.rss")]
+		[InlineData("https://old.reddit.com/r/raspberrypi/comments/xus58/trying_to_find_a_mini_usb_keyboard_only_finding/.rss")]
 		public async Task Run(string threadUriString)
 		{
 			// Arrange
-			var count = 0;
 			_sut.ThreadUriString = threadUriString;
 
 			// Act
 			await _sut.RunAsync(new StepExecutionContext());
 
 			// Assert
-			foreach (var link in _sut.Links)
-			{
-				count++;
-				Assert.NotNull(link);
-				Assert.NotEmpty(link);
-				Assert.StartsWith("http", link, StringComparison.InvariantCultureIgnoreCase);
-			}
-
-			Assert.InRange(count, 1, int.MaxValue);
+			Assert.NotNull(_sut.Links);
+			Assert.NotEmpty(_sut.Links);
+			Assert.All(_sut.Links, Assert.NotNull);
+			Assert.All(_sut.Links, s => Assert.StartsWith("http", s, StringComparison.InvariantCultureIgnoreCase));
 		}
 	}
 }

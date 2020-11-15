@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
@@ -7,10 +8,11 @@ using Xunit;
 
 namespace RandomWebBrowsing.Services.Tests
 {
-	public class RedditServiceTests : IDisposable
+	public sealed class RedditServiceTests : IDisposable
 	{
 		private readonly Stack<IDisposable> _disposables = new Stack<IDisposable>();
 		private readonly IRedditService _sut;
+		private readonly XmlSerializerFactory _xmlSerializerFactory;
 
 		public RedditServiceTests()
 		{
@@ -19,8 +21,8 @@ namespace RandomWebBrowsing.Services.Tests
 			{
 				BaseAddress = new Uri("https://old.reddit.com", UriKind.Absolute),
 			};
-			var xmlSerializerFactory = new XmlSerializerFactory();
-			var httpClient = new Clients.Concrete.WebClient(netHttpClient, xmlSerializerFactory);
+			_xmlSerializerFactory = new XmlSerializerFactory();
+			var httpClient = new Clients.Concrete.WebClient(netHttpClient, _xmlSerializerFactory);
 			_sut = new Concrete.RedditService(httpClient);
 
 			_disposables.Push(httpClient);
@@ -89,6 +91,7 @@ namespace RandomWebBrowsing.Services.Tests
 
 		[Theory]
 		[InlineData("https://old.reddit.com/r/euphoria/comments/cm3ryv/euphoria_s1_e8_and_salt_the_earth_behind_you/.rss")]
+		[InlineData("https://old.reddit.com/r/programming/comments/gle9a0/collection_of_100s_of_conference_tech_talks_in/.rss")]
 		public async Task GetThreadComments(string uriString)
 		{
 			// Arrange
@@ -96,7 +99,7 @@ namespace RandomWebBrowsing.Services.Tests
 			var uri = new Uri(uriString, UriKind.Absolute);
 
 			// Act
-			await foreach(var comment in _sut.GetThreadCommentsAsync(uri))
+			await foreach (var comment in _sut.GetThreadCommentsAsync(uri))
 			{
 				count++;
 				// Assert
@@ -105,6 +108,65 @@ namespace RandomWebBrowsing.Services.Tests
 			}
 
 			Assert.InRange(count, 1, int.MaxValue);
+		}
+
+		[Theory]
+		[InlineData(@"<?xml version=""1.0"" encoding=""UTF-8""?>
+<feed xmlns=""http://www.w3.org/2005/Atom"" xmlns:media=""http://search.yahoo.com/mrss/"">
+    <category term=""programming"" label=""r/programming""/>
+    <updated>2020-09-11T13:47:28+00:00</updated>
+    <icon>https://www.redditstatic.com/icon.png/</icon>
+    <id>/r/programming/comments/gle9a0/collection_of_100s_of_conference_tech_talks_in/.rss</id>
+    <link rel=""self"" href=""https://old.reddit.com/r/programming/comments/gle9a0/collection_of_100s_of_conference_tech_talks_in/.rss"" type=""application/atom+xml"" />
+    <link rel=""alternate"" href=""https://old.reddit.com/r/programming/comments/gle9a0/collection_of_100s_of_conference_tech_talks_in/"" type=""text/html"" />
+    <logo>https://b.thumbs.redditmedia.com/2rTE46grzsr-Ll3Q.png</logo>
+    <subtitle>Computer Programming</subtitle>
+    <title>Collection of 100's of conference tech talks in various categories like Frontend, Backend, Mobile, Security, DevOps and even UX : programming</title>
+    <entry>
+        <author>
+            <name>/u/apvarun</name>
+            <uri>https://old.reddit.com/user/apvarun</uri>
+        </author>
+        <category term=""programming"" label=""r/programming""/>
+        <content type=""html"">&amp;#32; submitted by &amp;#32; &lt;a href=&quot;https://old.reddit.com/user/apvarun&quot;&gt; /u/apvarun &lt;/a&gt; &lt;br/&gt; &lt;span&gt;&lt;a href=&quot;https://confs.space&quot;&gt;[link]&lt;/a&gt;&lt;/span&gt; &amp;#32; &lt;span&gt;&lt;a href=&quot;https://old.reddit.com/r/programming/comments/gle9a0/collection_of_100s_of_conference_tech_talks_in/&quot;&gt;[comments]&lt;/a&gt;&lt;/span&gt;</content>
+        <id>t3_gle9a0</id>
+        <link href=""https://old.reddit.com/r/programming/comments/gle9a0/collection_of_100s_of_conference_tech_talks_in/"" />
+        <updated>2020-05-17T12:03:09+00:00</updated>
+        <title>Collection of 100's of conference tech talks in various categories like Frontend, Backend, Mobile, Security, DevOps and even UX</title>
+    </entry>
+    <entry>
+        <category term=""programming"" label=""r/programming"" />
+        <content type=""html"">&lt;!-- SC_OFF --&gt;&lt;div class=&quot;md&quot;&gt;&lt;p&gt;[deleted]&lt;/p&gt; &lt;/div&gt;&lt;!-- SC_ON --&gt;</content>
+        <id>t1_fqx27jj</id>
+        <link href=""https://old.reddit.com/r/programming/comments/gle9a0/collection_of_100s_of_conference_tech_talks_in/fqx27jj/""/>
+        <updated>2020-05-17T14:01:03+00:00</updated>
+        <title>/u/[deleted] on Collection of 100's of conference tech talks in various categories like Frontend, Backend, Mobile, Security, DevOps and even UX</title>
+    </entry>
+    <entry>
+        <author>
+            <name>/u/apvarun</name>
+            <uri>https://old.reddit.com/user/apvarun</uri>
+        </author>
+        <category term=""programming"" label=""r/programming"" />
+        <content type=""html"">&lt;!-- SC_OFF --&gt;&lt;div class=&quot;md&quot;&gt;&lt;p&gt;Appreciate your feedback. Will add more in coming weeks 👍&lt;/p&gt; &lt;/div&gt;&lt;!-- SC_ON --&gt;</content>
+        <id>t1_fqxrfkb</id>
+        <link href=""https://old.reddit.com/r/programming/comments/gle9a0/collection_of_100s_of_conference_tech_talks_in/fqxrfkb/""/>
+        <updated>2020-05-17T17:31:42+00:00</updated>
+        <title>/u/apvarun on Collection of 100's of conference tech talks in various categories like Frontend, Backend, Mobile, Security, DevOps and even UX</title>
+    </entry>
+</feed>")]
+		public void ProcessNearlyEmptyCommentThread_DoesntShitTheBed(string json)
+		{
+			var bytes = System.Text.Encoding.UTF8.GetBytes(json);
+			using var stream = new MemoryStream(bytes);
+			var serializer = _xmlSerializerFactory.CreateSerializer(typeof(RandomWebBrowsing.Models.Generated.feedType));
+			var feed = (RandomWebBrowsing.Models.Generated.feedType)serializer.Deserialize(stream);
+
+			Assert.Equal(3, feed.entry.Length);
+			Assert.All(feed.entry, Assert.NotNull);
+			Assert.All(feed.entry, e => Assert.NotNull(e.content));
+			Assert.All(feed.entry, e => Assert.NotNull(e.content.Value));
+			Assert.All(feed.entry, e => Assert.NotEmpty(e.content.Value));
 		}
 	}
 }
