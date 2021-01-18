@@ -15,13 +15,11 @@ namespace RandomWebBrowsing.WorkerService
 	{
 		private readonly int _intervalMilliseconds;
 		private readonly IWorkflowHost _workflowHost;
-		private readonly OpenTracing.ITracer _tracer;
 		private readonly ILogger<Worker> _logger;
 
 		public Worker(
 			IWorkflowHost workflowHost,
 			IOptions<Config.Settings> options,
-			OpenTracing.ITracer tracer,
 			ILogger<Worker> logger)
 		{
 			_workflowHost = Guard.Argument(() => workflowHost).NotNull().Value;
@@ -29,7 +27,6 @@ namespace RandomWebBrowsing.WorkerService
 			Guard.Argument(() => options).NotNull();
 			Guard.Argument(() => options.Value).NotNull();
 			_intervalMilliseconds = Guard.Argument(() => options.Value.IntervalMilliseconds).Positive().Value!.Value;
-			_tracer = tracer;
 			_logger = logger;
 
 			_workflowHost.OnStepError += WorkflowHost_OnStepError;
@@ -47,19 +44,6 @@ namespace RandomWebBrowsing.WorkerService
 #if DEBUG
 			System.Diagnostics.Debugger.Break();
 #endif
-			using var scope = _tracer?
-				.BuildDefaultSpan()
-				.WithTag(nameof(step), step.Name)
-				.StartActive();
-
-			scope?.Span.Log(exception);
-
-			var enumerator = exception.Data.GetEnumerator();
-
-			while (enumerator.MoveNext())
-			{
-				scope?.Span.Log(enumerator.Key, enumerator.Value);
-			}
 
 			_logger?.LogError(exception, exception.Message);
 		}
@@ -68,8 +52,6 @@ namespace RandomWebBrowsing.WorkerService
 		{
 			while (!stoppingToken.IsCancellationRequested)
 			{
-				using var scope = _tracer?.StartParentSpan();
-
 				var persistenceData = new Models.PersistenceData();
 				await _workflowHost.StartWorkflow(workflowId: nameof(Workflows.Workflow), data: persistenceData);
 

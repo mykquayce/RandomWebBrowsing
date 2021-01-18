@@ -62,12 +62,8 @@ namespace RandomWebBrowsing.WorkerService
 					services
 						.Configure<List<string>>(hostContext.Configuration.GetSection("Blacklist"))
 						.Configure<Helpers.RabbitMQ.Models.RabbitMQSettings>(hostContext.Configuration.GetSection(nameof(Helpers.RabbitMQ.Models.RabbitMQSettings)))
-						.Configure<Helpers.Jaeger.Models.Settings>(hostContext.Configuration.GetSection("JaegerSettings"))
 						.Configure<Config.Settings>(hostContext.Configuration.GetSection(nameof(Config.Settings)))
 						.Configure<Config.Uris>(hostContext.Configuration.GetSection(nameof(Config.Uris)));
-
-					services
-						.AddJaegerTracing(hostContext.Configuration.GetSection("JaegerSettings").Get<Helpers.Jaeger.Models.Settings>());
 
 					services
 						.AddTransient<Services.IMessageService, Services.Concrete.MessageService>()
