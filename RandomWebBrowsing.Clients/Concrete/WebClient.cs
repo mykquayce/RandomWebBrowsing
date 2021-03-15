@@ -36,7 +36,7 @@ namespace RandomWebBrowsing.Clients.Concrete
 			return response.Headers!;
 		}
 
-		public async Task<Models.Generated.feedType> GetFeedAsync(
+		public async Task<Helpers.Reddit.Models.feed> GetFeedAsync(
 			Uri uri,
 			[CallerMemberName] string? callerMemberName = default,
 			[CallerFilePath] string? callerFilePath = default)
@@ -45,11 +45,10 @@ namespace RandomWebBrowsing.Clients.Concrete
 
 			await using var stream = await response!.TaskStream!;
 
-			var serializer = _xmlSerializerFactory.CreateSerializer(typeof(Models.Generated.feedType));
+			var serializer = _xmlSerializerFactory.CreateSerializer(typeof(Helpers.Reddit.Models.feed));
 
-			var feed = (Models.Generated.feedType)serializer.Deserialize(stream);
-
-			return feed;
+			return serializer.Deserialize(stream) as Helpers.Reddit.Models.feed
+				?? throw new Exception($"Deserialization of {nameof(uri)} failed: {uri}");
 		}
 
 		public async Task VisitLinkAsync(Uri uri)

@@ -13,7 +13,7 @@ namespace RandomWebBrowsing.Clients
 			[CallerMemberName] string? callerMemberName = default,
 			[CallerFilePath] string? callerFilePath = default);
 
-		Task<Models.Generated.feedType> GetFeedAsync(
+		Task<Helpers.Reddit.Models.feed> GetFeedAsync(
 			Uri uri,
 			[CallerMemberName] string? callerMemberName = default,
 			[CallerFilePath] string? callerFilePath = default);

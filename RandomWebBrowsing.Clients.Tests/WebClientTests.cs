@@ -51,8 +51,8 @@ namespace RandomWebBrowsing.Clients.Tests
 
 			// Assert
 			Assert.NotNull(feed);
-			Assert.NotNull(feed.id);
-			Assert.NotEmpty(feed.id);
+			Assert.NotNull(feed.title);
+			Assert.NotEmpty(feed.title);
 		}
 
 		[Theory]

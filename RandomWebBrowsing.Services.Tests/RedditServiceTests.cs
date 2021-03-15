@@ -159,10 +159,11 @@ namespace RandomWebBrowsing.Services.Tests
 		{
 			var bytes = System.Text.Encoding.UTF8.GetBytes(json);
 			using var stream = new MemoryStream(bytes);
-			var serializer = _xmlSerializerFactory.CreateSerializer(typeof(RandomWebBrowsing.Models.Generated.feedType));
-			var feed = (RandomWebBrowsing.Models.Generated.feedType)serializer.Deserialize(stream);
+			var serializer = _xmlSerializerFactory.CreateSerializer(typeof(Helpers.Reddit.Models.feed));
+			var feed = serializer.Deserialize(stream) as Helpers.Reddit.Models.feed;
 
-			Assert.Equal(3, feed.entry.Length);
+			Assert.NotNull(feed);
+			Assert.Equal(3, feed!.entry.Length);
 			Assert.All(feed.entry, Assert.NotNull);
 			Assert.All(feed.entry, e => Assert.NotNull(e.content));
 			Assert.All(feed.entry, e => Assert.NotNull(e.content.Value));
