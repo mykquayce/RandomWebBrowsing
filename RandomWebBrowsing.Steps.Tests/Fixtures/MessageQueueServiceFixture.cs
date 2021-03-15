@@ -3,12 +3,12 @@ using System;
 
 namespace RandomWebBrowsing.Steps.Tests.Fixtures
 {
-	public sealed class MessageQueueServiceFixture : IDisposable
+	public sealed class MessageQueueServiceFixture : UserSecretsFixture, IDisposable
 	{
 		public MessageQueueServiceFixture()
 		{
 			var options = Options.Create(new Config.Settings { QueueName = "test", });
-			var settingsOptions = Options.Create(new Helpers.RabbitMQ.Models.RabbitMQSettings());
+			var settingsOptions = Options.Create(base.RabbitMQSettings);
 
 			MessageQueueService = new Services.Concrete.MessageQueueService(options, settingsOptions);
 		}
