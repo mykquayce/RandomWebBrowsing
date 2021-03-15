@@ -35,9 +35,10 @@ namespace RandomWebBrowsing.Steps.Tests
 			return _publishMessageStep.RunAsync(new StepExecutionContext());
 		}
 
+#pragma warning disable IDE0079 // Remove unnecessary suppression
 #pragma warning disable xUnit1004 // Test methods should not be skipped
 		[Fact(Skip = "needs rabbitmq running with settings saved in user secrets. see readme.md")]
-#pragma warning restore xUnit1004 // Test methods should not be skipped
+#pragma warning restore xUnit1004, IDE0079 // Test methods should not be skipped ; Remove unnecessary suppression
 		public async Task PublishConsumeAcknowledge()
 		{
 			await PublishAsync("first");

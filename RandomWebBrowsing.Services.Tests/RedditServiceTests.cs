@@ -10,7 +10,7 @@ namespace RandomWebBrowsing.Services.Tests
 {
 	public sealed class RedditServiceTests : IDisposable
 	{
-		private readonly Stack<IDisposable> _disposables = new Stack<IDisposable>();
+		private readonly Stack<IDisposable> _disposables = new();
 		private readonly IRedditService _sut;
 		private readonly XmlSerializerFactory _xmlSerializerFactory;
 
