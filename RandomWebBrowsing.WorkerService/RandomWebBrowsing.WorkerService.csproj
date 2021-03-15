@@ -1,8 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Worker">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-    <LangVersion>preview</LangVersion>
+    <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <UserSecretsId>dotnet-RandomWebBrowsing.WorkerService-88179CA8-B733-4AF6-BBFB-26570AC08A74</UserSecretsId>
   </PropertyGroup>
@@ -10,8 +9,8 @@
   <ItemGroup>
     <PackageReference Include="Helpers.DockerSecrets" Version="1.2.10" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.0-preview.2.21154.6" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0-preview.2.21154.6" />
   </ItemGroup>
 
   <ItemGroup>
